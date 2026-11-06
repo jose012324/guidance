@@ -1,0 +1,72 @@
+{% extends "partials/app_layout.html" %}
+{% block title %}Record Borrowing — {{ school_name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div><h1>Record Borrowing</h1><p class="page-subtitle">Log an item borrowed by a staff member.</p></div>
+    <div class="page-header-actions">
+        <a href="{% url 'inventory:borrowed_list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Back</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="post" data-disable-on-submit>
+                    {% csrf_token %}
+                    {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field.errors|join:', ' }}</div>{% endif %}
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Borrower Name <span class="text-danger">*</span></label>
+                            <input type="text" name="borrower_name" class="form-control" value="{{ form.borrower_name.value|default:'' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Department</label>
+                            <input type="text" name="department" class="form-control" value="{{ form.department.value|default:'' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Item <span class="text-danger">*</span></label>
+                            {{ form.item }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Quantity <span class="text-danger">*</span></label>
+                            <input type="number" name="quantity" class="form-control" min="1" value="{{ form.quantity.value|default:'1' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Borrow Date</label>
+                            <input type="text" name="borrow_date" class="form-control datepicker" value="{{ form.borrow_date.value|date:'Y-m-d'|default:'' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Expected Return Date</label>
+                            <input type="text" name="expected_return_date" class="form-control datepicker" value="{{ form.expected_return_date.value|date:'Y-m-d'|default:'' }}">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Notes</label>
+                            <textarea name="notes" class="form-control" rows="2">{{ form.notes.value|default:'' }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-3">
+                        <a href="{% url 'inventory:borrowed_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-save me-2"></i>Record Borrowing</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-info-circle me-2"></i>Borrowing Workflow</div>
+            <div class="card-body">
+                <p class="small text-muted-soft">Status flow:</p>
+                <ol class="small">
+                    <li><span class="badge badge-borrowed">Borrowed</span> — item is currently out</li>
+                    <li><span class="badge badge-overdue">Overdue</span> — past expected return date (auto-flagged)</li>
+                    <li><span class="badge badge-returned">Returned</span> — item has been returned</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

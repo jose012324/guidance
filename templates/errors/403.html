@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}403 — Access Denied · {{ school_name }}{% endblock %}
+{% block body_class %}public-layout{% endblock %}
+
+{% block content %}
+<div class="error-shell">
+    <div class="error-grid">
+        <!-- LEFT — Big error number -->
+        <div class="error-visual" data-aos="fade-right">
+            <div class="error-eyebrow">
+                <span class="error-eyebrow-line"></span>
+                <span>Error · Access denied</span>
+            </div>
+            <div class="error-number">403</div>
+            <div class="error-number-sub">— Forbidden</div>
+        </div>
+
+        <!-- RIGHT — Content -->
+        <div class="error-content" data-aos="fade-left">
+            <div class="error-brand">
+                <div class="error-brand-mark"><i class="bi bi-mortarboard-fill"></i></div>
+                <div class="error-brand-text">
+                    <div class="error-brand-name">{{ school_name|default:"Guidance Office" }}</div>
+                    <div class="error-brand-sub">Records & Inventory</div>
+                </div>
+            </div>
+
+            <div class="error-icon-large">
+                <i class="bi bi-shield-lock-fill"></i>
+            </div>
+
+            <h1 class="error-title">You don't have<br>permission to view this page.</h1>
+            <p class="error-sub">
+                Your current role doesn't grant access to this resource.
+                If you believe this is a mistake, please contact your administrator
+                to request the appropriate permissions.
+            </p>
+
+            <div class="error-actions">
+                <a href="{% url 'dashboard:home' %}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-house-fill me-2"></i>Back to Dashboard
+                </a>
+                <a href="{% url 'accounts:landing' %}" class="btn btn-outline-primary btn-lg">
+                    Go Home
+                </a>
+            </div>
+
+            <div class="error-meta">
+                <div class="error-meta-item">
+                    <span class="error-meta-label">Error code</span>
+                    <span class="error-meta-value">403 · FORBIDDEN</span>
+                </div>
+                <div class="error-meta-divider"></div>
+                <div class="error-meta-item">
+                    <span class="error-meta-label">Timestamp</span>
+                    <span class="error-meta-value">{% now "M d, Y · H:i" %}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Decorative -->
+    <div class="error-deco error-deco-1"></div>
+    <div class="error-deco error-deco-2"></div>
+</div>
+
+<style>
+    .error-shell {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        background:
+            radial-gradient(circle at 30% 20%, var(--color-accent-soft) 0%, transparent 50%),
+            linear-gradient(135deg, var(--color-bg) 0%, var(--color-surface) 100%);
+        position: relative;
+        overflow: hidden;
+    }
+    .error-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+        align-items: center;
+        max-width: 1100px;
+        width: 100%;
+        position: relative;
+        z-index: 2;
+    }
+
+    /* LEFT — Visual */
+    .error-visual { text-align: center; }
+    .error-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: .65rem;
+        margin-bottom: 1.5rem;
+    }
+    .error-eyebrow-line {
+        width: 32px; height: 1px;
+        background: var(--color-accent);
+    }
+    .error-eyebrow span:last-child {
+        font-size: .72rem;
+        text-transform: uppercase;
+        letter-spacing: .25em;
+        color: var(--color-accent);
+        font-weight: 600;
+    }
+    .error-number {
+        font-family: var(--font-serif);
+        font-size: clamp(8rem, 18vw, 16rem);
+        font-weight: 700;
+        line-height: .85;
+        letter-spacing: -.05em;
+        color: var(--color-accent);
+        background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-darker) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .error-number-sub {
+        font-family: var(--font-serif);
+        font-style: italic;
+        font-size: 1.5rem;
+        color: var(--color-text-muted);
+        margin-top: .5rem;
+    }
+
+    /* RIGHT — Content */
+    .error-content { max-width: 480px; }
+    .error-brand {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        margin-bottom: 2rem;
+    }
+    .error-brand-mark {
+        width: 38px; height: 38px;
+        border-radius: var(--radius-sm);
+        background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-darker) 100%);
+        color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.15rem;
+        box-shadow: var(--shadow-accent);
+    }
+    .error-brand-name {
+        font-family: var(--font-serif);
+        font-weight: 700;
+        font-size: .95rem;
+        line-height: 1.2;
+    }
+    .error-brand-sub {
+        font-size: .65rem;
+        color: var(--color-text-muted);
+        letter-spacing: .15em;
+        text-transform: uppercase;
+    }
+
+    .error-icon-large {
+        width: 70px; height: 70px;
+        border-radius: var(--radius);
+        background: var(--color-danger-soft);
+        color: var(--color-danger);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+    }
+    .error-title {
+        font-family: var(--font-serif);
+        font-size: clamp(1.8rem, 3vw, 2.3rem);
+        line-height: 1.15;
+        letter-spacing: -.025em;
+        margin-bottom: 1rem;
+        font-weight: 700;
+    }
+    .error-sub {
+        color: var(--color-text-muted);
+        font-size: .95rem;
+        line-height: 1.7;
+        margin-bottom: 2rem;
+    }
+
+    .error-actions {
+        display: flex;
+        gap: .75rem;
+        flex-wrap: wrap;
+        margin-bottom: 2.5rem;
+    }
+
+    .error-meta {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--color-border);
+    }
+    .error-meta-item { display: flex; flex-direction: column; }
+    .error-meta-label {
+        font-size: .65rem;
+        text-transform: uppercase;
+        letter-spacing: .12em;
+        color: var(--color-text-muted);
+        font-weight: 600;
+    }
+    .error-meta-value {
+        font-family: var(--font-mono);
+        font-size: .82rem;
+        color: var(--color-text);
+        margin-top: .2rem;
+    }
+    .error-meta-divider {
+        width: 1px;
+        height: 32px;
+        background: var(--color-border);
+    }
+
+    /* Decorative */
+    .error-deco {
+        position: absolute;
+        border: 1px solid var(--color-border);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+    .error-deco-1 { width: 350px; height: 350px; top: -100px; right: -100px; opacity: .4; }
+    .error-deco-2 { width: 200px; height: 200px; bottom: -80px; left: -80px; opacity: .3; }
+
+    @media (max-width: 991.98px) {
+        .error-grid { grid-template-columns: 1fr; gap: 2rem; text-align: center; }
+        .error-brand { justify-content: center; }
+        .error-icon-large { margin-left: auto; margin-right: auto; }
+        .error-actions { justify-content: center; }
+        .error-meta { justify-content: center; }
+        .error-eyebrow { justify-content: center; }
+    }
+    @media (max-width: 575.98px) {
+        .error-number { font-size: 6rem; }
+        .error-title { font-size: 1.5rem; }
+        .error-meta { flex-direction: column; gap: .65rem; }
+        .error-meta-divider { width: 100%; height: 1px; }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "partials/app_layout.html" %}
+
+{% block title %}Delete User — {{ target_user.full_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Delete User</h1>
+        <p class="page-subtitle">This action is permanent and cannot be undone.</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'accounts:user_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <i class="bi bi-exclamation-triangle me-2"></i>Confirm Deletion
+            </div>
+            <div class="card-body">
+                <p>Are you sure you want to permanently delete the user <strong>{{ target_user.full_name }}</strong> ({{ target_user.username }})?</p>
+                <p class="text-muted-soft small">All associated records (audit logs, etc.) will be preserved for compliance, but the user will no longer be able to log in.</p>
+
+                <form method="post" data-disable-on-submit>
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <a href="{% url 'accounts:user_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash me-2"></i>Yes, Delete User
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

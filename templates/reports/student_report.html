@@ -1,0 +1,58 @@
+{% extends "partials/app_layout.html" %}
+{% load static %}
+
+{% block title %}Student Record Report — {{ school_name }}{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/student_inventory.css' %}">{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Student Record Report</h1>
+        <p class="page-subtitle">Record inventory summary — student records, guidance coverage, cases, and referrals.</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'reports:home' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Back</a>
+        <a href="?format=csv" class="btn btn-success"><i class="bi bi-filetype-csv me-2"></i>Export CSV</a>
+        <button onclick="window.print()" class="btn btn-outline-primary"><i class="bi bi-printer me-2"></i>Print</button>
+    </div>
+</div>
+
+{% with k=inventory_data.kpis %}
+<div class="record-inventory">
+    <div class="ri-stat-grid ri-four">
+        <div class="ri-stat ri-accent"><span class="ri-stat-icon"><i class="bi bi-people-fill"></i></span><div><div class="ri-stat-label">Total Registered Students</div><strong>{{ k.total_students }}</strong></div></div>
+        <div class="ri-stat ri-success"><span class="ri-stat-icon"><i class="bi bi-person-fill"></i></span><div><div class="ri-stat-label">Active Students</div><strong>{{ k.active_students }}</strong></div></div>
+        <div class="ri-stat ri-danger"><span class="ri-stat-icon"><i class="bi bi-person-x-fill"></i></span><div><div class="ri-stat-label">Inactive Students</div><strong>{{ k.inactive_students }}</strong></div></div>
+        <div class="ri-stat ri-info"><span class="ri-stat-icon"><i class="bi bi-person-plus-fill"></i></span><div><div class="ri-stat-label">Newly Registered Students</div><strong>{{ k.newly_registered_students }}</strong><small>Past 30 days</small></div></div>
+    </div>
+    <div class="ri-stat-grid ri-four">
+        <div class="ri-stat ri-warning"><span class="ri-stat-icon"><i class="bi bi-file-earmark-text-fill"></i></span><div><div class="ri-stat-label">With Guidance Records</div><strong>{{ k.with_guidance_records }}</strong></div></div>
+        <div class="ri-stat ri-info"><span class="ri-stat-icon"><i class="bi bi-file-earmark-minus-fill"></i></span><div><div class="ri-stat-label">Without Guidance Records</div><strong>{{ k.without_guidance_records }}</strong></div></div>
+        <div class="ri-stat ri-accent"><span class="ri-stat-icon"><i class="bi bi-exclamation-triangle-fill"></i></span><div><div class="ri-stat-label">Active Cases</div><strong>{{ k.active_cases }}</strong></div></div>
+        <div class="ri-stat ri-success"><span class="ri-stat-icon"><i class="bi bi-check-circle-fill"></i></span><div><div class="ri-stat-label">Closed Cases</div><strong>{{ k.closed_cases }}</strong></div></div>
+    </div>
+    <div class="ri-stat-grid ri-five">
+        <div class="ri-stat ri-accent"><span class="ri-stat-icon"><i class="bi bi-clock-fill"></i></span><div><div class="ri-stat-label">Pending Referrals</div><strong>{{ k.pending_referrals }}</strong></div></div>
+        <div class="ri-stat ri-info"><span class="ri-stat-icon"><i class="bi bi-arrow-left-right"></i></span><div><div class="ri-stat-label">Referred Students</div><strong>{{ k.referred_students }}</strong></div></div>
+        <div class="ri-stat ri-success"><span class="ri-stat-icon"><i class="bi bi-check2-circle"></i></span><div><div class="ri-stat-label">Completed Referrals</div><strong>{{ k.completed_referrals }}</strong></div></div>
+        <div class="ri-stat ri-warning"><span class="ri-stat-icon"><i class="bi bi-exclamation-circle-fill"></i></span><div><div class="ri-stat-label">Urgent Cases</div><strong>{{ k.urgent_cases }}</strong></div></div>
+        <div class="ri-stat ri-danger"><span class="ri-stat-icon"><i class="bi bi-exclamation-diamond-fill"></i></span><div><div class="ri-stat-label">Emergency Cases</div><strong>{{ k.emergency_cases }}</strong></div></div>
+    </div>
+
+    <div class="ri-chart-grid">
+        <section class="ri-panel"><h2><i class="bi bi-mortarboard"></i> Students by Year Level</h2><div class="ri-chart"><canvas id="riYearChart"></canvas></div></section>
+        <section class="ri-panel"><h2><i class="bi bi-diagram-3"></i> Students by Course &amp; Section</h2><div class="ri-chart"><canvas id="riProgramChart"></canvas></div></section>
+        <section class="ri-panel"><h2><i class="bi bi-people"></i> Students by Gender</h2><div class="ri-chart"><canvas id="riGenderChart"></canvas></div></section>
+        <section class="ri-panel"><h2><i class="bi bi-person-hearts"></i> Cases by Concern</h2><div class="ri-chart ri-chart-tall"><canvas id="riConcernChart"></canvas></div></section>
+        <section class="ri-panel"><h2><i class="bi bi-send-check"></i> Referral Status</h2><div class="ri-chart"><canvas id="riStatusChart"></canvas></div></section>
+        <section class="ri-panel"><h2><i class="bi bi-clipboard-data"></i> Counseling &amp; Referral Overview</h2>
+            <div class="ri-overview"><span class="ri-overview-icon"><i class="bi bi-chat-heart-fill"></i></span><div>Students with Counseling Sessions<strong>{{ k.counseling_students }}</strong><small>Unique students</small></div></div>
+            <div class="ri-overview"><span class="ri-overview-icon"><i class="bi bi-arrow-left-right"></i></span><div>Students with Referrals<strong>{{ k.referred_students }}</strong><small>Unique students</small></div></div>
+        </section>
+    </div>
+</div>
+{% endwith %}
+{{ inventory_data|json_script:"student-inventory-data" }}
+{% endblock %}
+
+{% block extra_js %}<script src="{% static 'js/student_inventory.js' %}"></script>{% endblock %}

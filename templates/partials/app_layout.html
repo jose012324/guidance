@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body_class %}app-layout{% endblock %}
+
+{% block layout %}
+<div class="app-shell">
+    <!-- ==================== Sidebar ==================== -->
+    <aside class="app-sidebar" id="appSidebar">
+        <div class="sidebar-brand">
+            {% if school_settings and school_settings.school_logo %}
+                <img src="{{ school_settings.school_logo.url }}" alt="logo" class="brand-logo">
+            {% else %}
+                <div class="brand-logo-placeholder">
+                    <i class="bi bi-mortarboard-fill"></i>
+                </div>
+            {% endif %}
+            <div class="brand-text">
+                <span class="brand-title">{{ school_name|default:"Guidance Office" }}</span>
+                <span class="brand-sub">Records & Inventory</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="sidebar-nav-section">Main</div>
+            <a href="{% url 'dashboard:home' %}" class="nav-link {% if request.resolver_match.app_name == 'dashboard' %}active{% endif %}">
+                <i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span>
+            </a>
+
+            {% if can_manage_users %}
+            <div class="sidebar-nav-section">Administration</div>
+            <a href="{% url 'accounts:user_list' %}" class="nav-link {% if request.resolver_match.namespace == 'accounts' and request.resolver_match.url_name|slice:':5' == 'user_' %}active{% endif %}">
+                <i class="bi bi-people-fill"></i><span>User Management</span>
+            </a>
+            {% endif %}
+
+            <div class="sidebar-nav-section">Records</div>
+            <a href="{% url 'students:list' %}" class="nav-link {% if request.resolver_match.app_name == 'students' and request.resolver_match.url_name != 'record_inventory' %}active{% endif %}">
+                <i class="bi bi-mortarboard"></i><span>Students</span>
+            </a>
+
+            <a href="{% url 'counseling:list' %}" class="nav-link {% if request.resolver_match.app_name == 'counseling' %}active{% endif %}">
+                <i class="bi bi-chat-heart-fill"></i><span>Counseling</span>
+            </a>
+
+            <a href="{% url 'referrals:list' %}" class="nav-link {% if request.resolver_match.app_name == 'referrals' %}active{% endif %}">
+                <i class="bi bi-send-exclamation-fill"></i><span>Referrals</span>
+            </a>
+
+            <div class="sidebar-nav-section">Resources</div>
+            {% comment %}Office inventory is temporarily hidden from all roles.
+            {% if can_manage_inventory %}
+            <a href="{% url 'inventory:list' %}" class="nav-link {% if request.resolver_match.app_name == 'inventory' %}active{% endif %}">
+                <i class="bi bi-box-seam-fill"></i><span>Inventory</span>
+            </a>
+            {% endif %}
+            {% endcomment %}
+
+            <a href="{% url 'students:record_inventory' %}" class="nav-link {% if request.resolver_match.url_name == 'record_inventory' %}active{% endif %}">
+                <i class="bi bi-clipboard-data-fill"></i><span>Student Record Inventory</span>
+            </a>
+
+            {% if can_view_reports %}
+            <a href="{% url 'reports:home' %}" class="nav-link {% if request.resolver_match.app_name == 'reports' %}active{% endif %}">
+                <i class="bi bi-file-earmark-bar-graph-fill"></i><span>Reports</span>
+            </a>
+            {% endif %}
+
+            {% if can_manage_database or can_manage_settings %}
+            <div class="sidebar-nav-section">System</div>
+            {% if can_manage_database %}
+            <a href="{% url 'configurations:database' %}" class="nav-link {% if request.resolver_match.url_name == 'database' %}active{% endif %}">
+                <i class="bi bi-database-fill"></i><span>Database</span>
+            </a>
+            {% endif %}
+            {% if can_manage_settings %}
+            <a href="{% url 'configurations:school_settings' %}" class="nav-link {% if request.resolver_match.app_name == 'configurations' and request.resolver_match.url_name != 'database' %}active{% endif %}">
+                <i class="bi bi-gear-fill"></i><span>Settings</span>
+            </a>
+            {% endif %}
+            {% endif %}
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="{% url 'accounts:account_settings' %}" class="user-card">
+                <div class="user-avatar">
+                    {% if user.avatar %}
+                        <img src="{{ user.avatar.url }}" alt="avatar">
+                    {% else %}
+                        <span>{{ user.first_name|first|default:user.username|first|upper }}</span>
+                    {% endif %}
+                </div>
+                <div class="user-info">
+                    <div class="user-name">{{ user.full_name|truncatechars:22 }}</div>
+                    <div class="user-role">{{ user.role.name|default:"—" }}</div>
+                </div>
+            </a>
+            <a href="{% url 'accounts:logout' %}" class="btn-logout" title="Logout">
+                <i class="bi bi-box-arrow-right"></i>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Mobile overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ==================== Main ==================== -->
+    <div class="app-main">
+        <header class="app-topbar">
+            <button class="btn-hamburger d-xl-inline-block d-lg-none" id="btnHamburger" aria-label="Toggle navigation">
+                <i class="bi bi-list"></i>
+            </button>
+            <div class="topbar-search d-none d-md-block">
+                <i class="bi bi-search"></i>
+                <input type="search" placeholder="Search students, items, referrals, sessions..." id="globalSearchInput" data-url="{% url 'accounts:global_search' %}">
+                <div class="global-search-results" id="globalSearchResults"></div>
+            </div>
+            <div class="topbar-actions">
+                <button class="icon-btn" id="themeToggle" title="Toggle theme">
+                    <i class="bi bi-sun-fill theme-icon-light"></i>
+                    <i class="bi bi-moon-stars-fill theme-icon-dark"></i>
+                </button>
+                <div class="dropdown">
+                    <button class="icon-btn position-relative" data-bs-toggle="dropdown" aria-expanded="false" title="Notifications">
+                        <i class="bi bi-bell-fill"></i>
+                        {% if unread_count %}
+                        <span class="badge bg-danger badge-notif">{{ unread_count }}</span>
+                        {% endif %}
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end notification-dropdown">
+                        <div class="dropdown-header d-flex justify-content-between align-items-center">
+                            <span>Notifications</span>
+                            <a href="{% url 'notifications:list' %}" class="small text-accent">View all</a>
+                        </div>
+                        <div class="notification-list">
+                            {% for n in recent_notifications %}
+                                <a href="{% if n.link %}{{ n.link }}{% else %}#{% endif %}" class="notification-item {% if not n.is_read %}unread{% endif %}">
+                                    <div class="notif-icon notif-{{ n.category }}">
+                                        <i class="bi bi-bell-fill"></i>
+                                    </div>
+                                    <div class="notif-body">
+                                        <div class="notif-title">{{ n.title }}</div>
+                                        <div class="notif-time">{{ n.created_at|timesince }} ago</div>
+                                    </div>
+                                </a>
+                            {% empty %}
+                                <div class="notification-empty">
+                                    <i class="bi bi-bell-slash"></i>
+                                    <p class="mb-0">No new notifications</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="app-content">
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="app-footer">
+            <div class="footer-left">
+                <div class="footer-logo">
+                    {% if school_settings and school_settings.school_logo %}
+                        <img src="{{ school_settings.school_logo.url }}" alt="logo" style="width:100%;height:100%;object-fit:contain;">
+                    {% else %}
+                        <i class="bi bi-mortarboard-fill"></i>
+                    {% endif %}
+                </div>
+                <span>&copy; {% now "Y" %} {{ school_name|default:"Guidance Office" }} · All rights reserved</span>
+            </div>
+            <div class="footer-right">
+                <span>{{ school_year|default:"" }}</span>
+                <span class="footer-divider"></span>
+                <a href="{% url 'accounts:landing' %}">Home</a>
+                <a href="{% url 'accounts:account_settings' %}">Account</a>
+                <span class="footer-divider"></span>
+                <span class="footer-version">v1.0.0</span>
+            </div>
+        </footer>
+    </div>
+</div>
+{% endblock %}

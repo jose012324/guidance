@@ -1,0 +1,40 @@
+{% extends "partials/app_layout.html" %}
+
+{% block title %}Inventory Report — {{ school_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Inventory Report</h1>
+        <p class="page-subtitle">{{ items|length }} items total</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'reports:home' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Back</a>
+        <a href="?format=csv" class="btn btn-success"><i class="bi bi-filetype-csv me-2"></i>Export CSV</a>
+        <button onclick="window.print()" class="btn btn-outline-primary"><i class="bi bi-printer me-2"></i>Print</button>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-responsive">
+        <table class="table table-sm">
+            <thead><tr><th>Item Code</th><th>Name</th><th>Category</th><th>Quantity</th><th>Unit</th><th>Reorder Level</th><th>Stock Status</th></tr></thead>
+            <tbody>
+                {% for i in items %}
+                <tr>
+                    <td>{{ i.item_code }}</td>
+                    <td>{{ i.name }}</td>
+                    <td>{{ i.get_category_display }}</td>
+                    <td>{{ i.quantity }}</td>
+                    <td>{{ i.unit }}</td>
+                    <td>{{ i.reorder_level }}</td>
+                    <td><span class="badge badge-{{ i.stock_status }}">{{ i.stock_status_display }}</span></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" class="text-center text-muted-soft py-3">No inventory items found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

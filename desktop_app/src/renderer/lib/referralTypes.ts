@@ -1,0 +1,23 @@
+/** Values mirror Referral.REFERRAL_TYPES in referrals/models.py. */
+export const REFERRAL_TYPES: ReadonlyArray<readonly [string, string]> = [
+  ['counseling', 'Counseling'],
+  ['behavioral', 'Behavioral Intervention'],
+  ['academic', 'Academic Intervention'],
+  ['psychological', 'Psychological Evaluation'],
+  ['medical', 'Medical Referral'],
+  ['external', 'External Agency'],
+  ['other', 'Other'],
+  ['academic_adviser_faculty', 'Academic Adviser / Faculty'],
+  ['department_chair_dean', 'Department Chair / Dean'],
+  ['student_affairs', 'Student Affairs'],
+  ['discipline_office', 'Discipline Office'],
+  ['school_clinic_physician', 'School Clinic / Physician'],
+  ['licensed_psychologist', 'Licensed Psychologist'],
+  ['psychiatrist', 'Psychiatrist'],
+  ['social_worker', 'Social Worker'],
+  ['scholarship_financial_aid', 'Scholarship/Financial Assistance'],
+  ['external_mental_health', 'External Mental Health Provider'],
+  ['hospital_emergency_service', 'Hospital / Emergency Service'],
+  ['government_social_welfare', 'Government/Social Welfare Agency'],
+  ['parent_guardian', 'Parent/Guardian'],
+];

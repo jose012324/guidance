@@ -1,0 +1,44 @@
+{% extends "partials/app_layout.html" %}
+{% block title %}Return Item — {{ record.item.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div><h1>Return Item</h1><p class="page-subtitle">{{ record.item.name }} • Borrowed by {{ record.borrower_name }}</p></div>
+    <div class="page-header-actions">
+        <a href="{% url 'inventory:borrowed_list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Back</a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-arrow-return-left me-2"></i>Return Details</div>
+            <div class="card-body">
+                <dl class="row mb-3">
+                    <dt class="col-sm-4 text-muted-soft">Borrower</dt><dd class="col-sm-8">{{ record.borrower_name }}</dd>
+                    <dt class="col-sm-4 text-muted-soft">Item</dt><dd class="col-sm-8">{{ record.item.name }}</dd>
+                    <dt class="col-sm-4 text-muted-soft">Quantity</dt><dd class="col-sm-8">{{ record.quantity }}</dd>
+                    <dt class="col-sm-4 text-muted-soft">Borrow Date</dt><dd class="col-sm-8">{{ record.borrow_date|date:"M d, Y" }}</dd>
+                    <dt class="col-sm-4 text-muted-soft">Expected Return</dt><dd class="col-sm-8">{{ record.expected_return_date|date:"M d, Y"|default:"—" }}</dd>
+                    <dt class="col-sm-4 text-muted-soft">Current Status</dt><dd class="col-sm-8"><span class="badge badge-{{ record.status }}">{{ record.get_status_display }}</span></dd>
+                </dl>
+
+                <form method="post" data-disable-on-submit>
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Actual Return Date</label>
+                        <input type="text" name="actual_return_date" class="form-control datepicker" value="{{ form.actual_return_date.value|date:'Y-m-d'|default:'' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Notes (optional)</label>
+                        <textarea name="notes" class="form-control" rows="2">{{ form.notes.value|default:'' }}</textarea>
+                    </div>
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'inventory:borrowed_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-success"><i class="bi bi-check-circle me-2"></i>Mark Returned</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Signing out — {{ school_name }}{% endblock %}
+{% block body_class %}public-layout{% endblock %}
+
+{% block content %}
+<div class="logout-shell">
+    <div class="logout-card" data-aos="zoom-in">
+        <!-- Spinner -->
+        <div class="logout-spinner">
+            <div class="logout-ring"></div>
+            <div class="logout-icon"><i class="bi bi-box-arrow-right"></i></div>
+        </div>
+
+        <!-- Brand mark -->
+        <div class="logout-brand">
+            <div class="logout-brand-mark">
+                {% if school_settings and school_settings.school_logo %}
+                    <img src="{{ school_settings.school_logo.url }}" alt="logo" style="width:100%;height:100%;object-fit:contain;border-radius:var(--radius-sm);">
+                {% else %}
+                    <i class="bi bi-mortarboard-fill"></i>
+                {% endif %}
+            </div>
+            <div class="logout-brand-text">
+                <div class="logout-brand-name">{{ school_name|default:"Guidance Office" }}</div>
+                <div class="logout-brand-sub">Records & Inventory</div>
+            </div>
+        </div>
+
+        <div class="logout-eyebrow">
+            <span class="logout-eyebrow-line"></span>
+            <span>Signing out</span>
+        </div>
+
+        <h1 class="logout-title">See you soon.</h1>
+        <p class="logout-sub">
+            Securely closing your session. Thank you for using the
+            {{ school_name|default:"Guidance Office" }} system.
+        </p>
+
+        <div class="logout-progress">
+            <div class="logout-progress-fill"></div>
+        </div>
+        <p class="logout-progress-label">Destroying session · Recording logout · Redirecting…</p>
+
+        <form method="post" id="logoutForm">
+            {% csrf_token %}
+        </form>
+    </div>
+
+    <!-- Decorative elements -->
+    <div class="logout-deco logout-deco-1"></div>
+    <div class="logout-deco logout-deco-2"></div>
+    <div class="logout-deco logout-deco-3"></div>
+</div>
+
+<style>
+    .logout-shell {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        background:
+            radial-gradient(circle at 20% 30%, var(--color-accent-soft) 0%, transparent 50%),
+            linear-gradient(135deg, var(--color-bg) 0%, var(--color-surface) 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .logout-card {
+        background: var(--color-bg);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-xl);
+        padding: 3.5rem 3rem;
+        max-width: 480px;
+        width: 100%;
+        text-align: center;
+        box-shadow: var(--shadow-xl);
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Spinner */
+    .logout-spinner {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.75rem;
+    }
+    .logout-ring {
+        position: absolute;
+        inset: 0;
+        border: 3px solid var(--color-accent-soft);
+        border-top-color: var(--color-accent);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    .logout-icon {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        color: var(--color-accent);
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.1); opacity: .7; }
+    }
+
+    /* Brand */
+    .logout-brand {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: .75rem;
+        margin-bottom: 2rem;
+    }
+    .logout-brand-mark {
+        width: 36px; height: 36px;
+        border-radius: var(--radius-sm);
+        background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-darker) 100%);
+        color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.1rem;
+        box-shadow: var(--shadow-accent);
+    }
+    .logout-brand-text { text-align: left; }
+    .logout-brand-name {
+        font-family: var(--font-serif);
+        font-weight: 700;
+        font-size: .95rem;
+        line-height: 1.2;
+        color: var(--color-text);
+    }
+    .logout-brand-sub {
+        font-size: .65rem;
+        color: var(--color-text-muted);
+        letter-spacing: .15em;
+        text-transform: uppercase;
+    }
+
+    /* Eyebrow */
+    .logout-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: .65rem;
+        margin-bottom: 1rem;
+    }
+    .logout-eyebrow-line {
+        width: 28px; height: 1px;
+        background: var(--color-accent);
+    }
+    .logout-eyebrow span:last-child {
+        font-size: .72rem;
+        text-transform: uppercase;
+        letter-spacing: .25em;
+        color: var(--color-accent);
+        font-weight: 600;
+    }
+
+    .logout-title {
+        font-family: var(--font-serif);
+        font-size: 2.2rem;
+        font-weight: 700;
+        letter-spacing: -.025em;
+        margin-bottom: .85rem;
+    }
+    .logout-sub {
+        color: var(--color-text-muted);
+        font-size: .92rem;
+        line-height: 1.65;
+        margin-bottom: 1.75rem;
+        max-width: 380px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Progress bar */
+    .logout-progress {
+        height: 4px;
+        background: var(--color-surface-2);
+        border-radius: var(--radius-pill);
+        overflow: hidden;
+        margin-bottom: .85rem;
+    }
+    .logout-progress-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--color-accent) 0%, var(--color-accent-bright) 100%);
+        border-radius: var(--radius-pill);
+        animation: progressFill 1.5s ease-out forwards;
+    }
+    @keyframes progressFill {
+        from { width: 0%; }
+        to   { width: 100%; }
+    }
+    .logout-progress-label {
+        font-size: .72rem;
+        color: var(--color-text-soft);
+        margin: 0;
+        font-family: var(--font-mono);
+        letter-spacing: .02em;
+    }
+
+    /* Decorative circles */
+    .logout-deco {
+        position: absolute;
+        border: 1px solid var(--color-border);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 1;
+    }
+    .logout-deco-1 { width: 400px; height: 400px; top: -150px; right: -100px; opacity: .5; }
+    .logout-deco-2 { width: 250px; height: 250px; bottom: -100px; left: -80px; opacity: .4; }
+    .logout-deco-3 { width: 120px; height: 120px; top: 30%; left: 10%; opacity: .3; }
+
+    @media (max-width: 575.98px) {
+        .logout-card { padding: 2.5rem 1.75rem; }
+        .logout-title { font-size: 1.75rem; }
+    }
+</style>
+
+<script>
+    setTimeout(function () {
+        document.getElementById('logoutForm').submit();
+    }, 1500);
+</script>
+{% endblock %}

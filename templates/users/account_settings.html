@@ -1,0 +1,166 @@
+{% extends "partials/app_layout.html" %}
+{% load static %}
+
+{% block title %}Account Settings — {{ school_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Account Settings</h1>
+        <p class="page-subtitle">Manage your profile, password, and preferences.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Profile -->
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <i class="bi bi-person-circle me-2"></i> Profile Information
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" data-disable-on-submit>
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="profile">
+
+                    <div class="mb-4" style="display:flex; flex-direction:column; align-items:center; text-align:center;">
+                        <div class="position-relative" style="display:inline-block; width:110px; height:110px;">
+                            {% if user.avatar %}
+                                <img src="{{ user.avatar.url }}" alt="avatar" class="rounded-circle" id="avatarPreview"
+                                     style="width: 110px; height: 110px; object-fit: cover; border: 3px solid var(--color-border);">
+                            {% else %}
+                                <div class="rounded-circle d-flex align-items-center justify-content-center" id="avatarPlaceholder"
+                                     style="width: 110px; height: 110px; background: var(--color-accent); color: #fff; font-size: 2.5rem; font-family: var(--font-serif);">
+                                    {{ user.first_name|first|default:user.username|first|upper }}
+                                </div>
+                                <img src="" alt="avatar" class="rounded-circle" id="avatarPreview"
+                                     style="width: 110px; height: 110px; object-fit: cover; border: 3px solid var(--color-border); display: none;">
+                            {% endif %}
+                            <label for="avatarInput" class="position-absolute bottom-0 end-0 rounded-circle d-flex align-items-center justify-content-center"
+                                   style="width: 34px; height: 34px; background: var(--color-accent); color: #fff; cursor: pointer; box-shadow: var(--shadow-md); border: 2px solid var(--color-bg);">
+                                <i class="bi bi-camera-fill"></i>
+                            </label>
+                        </div>
+                        <p class="text-muted-soft small mt-2">Click the camera icon to upload a new picture.</p>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">First Name</label>
+                            <input type="text" name="first_name" class="form-control" value="{{ profile_form.first_name.value|default:'' }}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Middle Name</label>
+                            <input type="text" name="middle_name" class="form-control" value="{{ profile_form.middle_name.value|default:'' }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Last Name</label>
+                            <input type="text" name="last_name" class="form-control" value="{{ profile_form.last_name.value|default:'' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" value="{{ profile_form.email.value|default:'' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Contact Number</label>
+                            <input type="text" name="contact_number" class="form-control" value="{{ profile_form.contact_number.value|default:'' }}">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Profile Picture</label>
+                            <input type="file" name="avatar" id="avatarInput" class="form-control" accept="image/*">
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save me-2"></i>Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password -->
+    <div class="col-lg-5">
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <i class="bi bi-key me-2"></i> Change Password
+            </div>
+            <div class="card-body">
+                <form method="post" data-disable-on-submit>
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="password">
+
+                    <div class="mb-3">
+                        <label class="form-label">Current Password</label>
+                        <input type="password" name="old_password" class="form-control" required>
+                        {% if password_form.old_password.errors %}<div class="text-danger small">{{ password_form.old_password.errors|join:', ' }}</div>{% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">New Password</label>
+                        <input type="password" name="new_password1" class="form-control" required>
+                        <small class="text-muted-soft">{{ password_form.new_password1.help_text }}</small>
+                        {% if password_form.new_password1.errors %}<div class="text-danger small">{{ password_form.new_password1.errors|join:', ' }}</div>{% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Confirm New Password</label>
+                        <input type="password" name="new_password2" class="form-control" required>
+                        {% if password_form.new_password2.errors %}<div class="text-danger small">{{ password_form.new_password2.errors|join:', ' }}</div>{% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-shield-lock me-2"></i>Update Password
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <i class="bi bi-info-circle me-2"></i> Account Info
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-5 text-muted-soft">Username</dt>
+                    <dd class="col-sm-7">{{ user.username }}</dd>
+                    <dt class="col-sm-5 text-muted-soft">Employee ID</dt>
+                    <dd class="col-sm-7">{{ user.employee_id|default:"—" }}</dd>
+                    <dt class="col-sm-5 text-muted-soft">Role</dt>
+                    <dd class="col-sm-7">{{ user.role.name|default:"—" }}</dd>
+                    <dt class="col-sm-5 text-muted-soft">Status</dt>
+                    <dd class="col-sm-7"><span class="badge badge-{{ user.status }}">{{ user.get_status_display }}</span></dd>
+                    <dt class="col-sm-5 text-muted-soft">Date Joined</dt>
+                    <dd class="col-sm-7">{{ user.date_joined|date:"M d, Y" }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var avatarInput = document.getElementById('avatarInput');
+    var avatarPreview = document.getElementById('avatarPreview');
+    var avatarPlaceholder = document.getElementById('avatarPlaceholder');
+    if (avatarInput && avatarPreview) {
+        avatarInput.addEventListener('change', function() {
+            var file = this.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    avatarPreview.src = e.target.result;
+                    avatarPreview.style.display = 'block';
+                    if (avatarPlaceholder) avatarPlaceholder.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

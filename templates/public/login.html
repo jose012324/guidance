@@ -1,0 +1,466 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Sign In — {{ school_name }}{% endblock %}
+{% block body_class %}public-layout{% endblock %}
+
+{% block content %}
+<div class="auth-shell">
+    <!-- ============== LEFT — Visual panel ============== -->
+    <aside class="auth-visual">
+        <a href="{% url 'accounts:landing' %}" class="auth-back-link">
+            <i class="bi bi-arrow-left"></i> Back to home
+        </a>
+
+        <div class="auth-visual-content">
+            <div class="auth-visual-eyebrow">{{ school_name|default:"Guidance Office" }} · {{ school_year }}</div>
+            <h1 class="auth-visual-title">
+                Welcome<br>
+                <em>back.</em>
+            </h1>
+            <p class="auth-visual-sub">
+                Sign in to manage student records, counseling sessions, referrals,
+                and office inventory from one secure dashboard.
+            </p>
+
+            <div class="auth-visual-features">
+                <div class="auth-visual-feature">
+                    <i class="bi bi-shield-lock-fill"></i>
+                    <span>Secure login with lockout protection</span>
+                </div>
+                <div class="auth-visual-feature">
+                    <i class="bi bi-people-fill"></i>
+                    <span>Role-based access control</span>
+                </div>
+                <div class="auth-visual-feature">
+                    <i class="bi bi-clock-history"></i>
+                    <span>Full audit trail of every action</span>
+                </div>
+            </div>
+
+            <div class="auth-visual-meta">
+                <span><i class="bi bi-shield-check me-1"></i>Secure</span>
+                <span>·</span>
+                <span><i class="bi bi-people me-1"></i>Role-Based</span>
+                <span>·</span>
+                <span><i class="bi bi-phone me-1"></i>Mobile-First</span>
+            </div>
+        </div>
+
+        <!-- Decorative elements -->
+        <div class="auth-visual-deco auth-deco-1"></div>
+        <div class="auth-visual-deco auth-deco-2"></div>
+        <div class="auth-visual-deco auth-deco-3"></div>
+    </aside>
+
+    <!-- ============== RIGHT — Form panel ============== -->
+    <main class="auth-form-panel">
+        <div class="auth-form-wrap">
+            <div class="auth-brand">
+                {% if school_settings and school_settings.school_logo %}
+                    <img src="{{ school_settings.school_logo.url }}" alt="logo" class="auth-brand-logo">
+                {% else %}
+                    <div class="auth-brand-mark"><i class="bi bi-mortarboard-fill"></i></div>
+                {% endif %}
+                <div>
+                    <div class="auth-brand-name">{{ school_name|default:"Guidance Office" }}</div>
+                    <div class="auth-brand-sub">Records & Inventory</div>
+                </div>
+            </div>
+
+            <div class="auth-form-header">
+                <div class="auth-form-eyebrow">
+                    <span class="auth-eyebrow-line"></span>
+                    <span>Sign in</span>
+                </div>
+                <h2 class="auth-form-title">Access your<br>dashboard.</h2>
+                <p class="auth-form-sub">Enter your credentials to continue.</p>
+            </div>
+
+            {% if locked %}
+            <div class="auth-alert" data-aos="fade-in">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>Too many failed login attempts. Please try again later.</span>
+            </div>
+            {% endif %}
+
+            <form method="post" data-disable-on-submit class="auth-form">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.GET.next }}">
+
+                <div class="auth-field">
+                    <label class="form-label">Username or Email</label>
+                    <div class="auth-input-wrap">
+                        <i class="bi bi-person"></i>
+                        <input type="text" name="username" class="form-control" placeholder="username or email"
+                               value="{{ form.username.value|default:'' }}" autofocus required>
+                    </div>
+                    {% if form.username.errors %}<div class="auth-field-error">{{ form.username.errors|join:', ' }}</div>{% endif %}
+                </div>
+
+                <div class="auth-field">
+                    <label class="form-label">Password</label>
+                    <div class="auth-input-wrap">
+                        <i class="bi bi-lock"></i>
+                        <input type="password" name="password" id="passwordField" class="form-control" placeholder="••••••••" required>
+                        <button type="button" class="auth-toggle-pw" id="togglePassword" tabindex="-1">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    {% if form.password.errors %}<div class="auth-field-error">{{ form.password.errors|join:', ' }}</div>{% endif %}
+                </div>
+
+                <div class="auth-form-row">
+                    <div class="form-check">
+                        <input type="checkbox" name="remember_me" class="form-check-input" id="rememberMe">
+                        <label class="form-check-label" for="rememberMe">Remember me</label>
+                    </div>
+                    <a href="#" class="auth-forgot" onclick="Swal.fire({icon:'info',title:'Forgot password',text:'Please contact your administrator to reset your password.'}); return false;">
+                        Forgot password?
+                    </a>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg w-100 auth-submit">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                </button>
+            </form>
+
+            {% comment %}Register entry point temporarily disabled.
+            <div class="auth-form-footnote">
+                <span>Don't have an account?</span>
+                <a href="{% url 'accounts:register' %}">Create one <i class="bi bi-arrow-right ms-1"></i></a>
+            </div>
+            {% endcomment %}
+        </div>
+    </main>
+</div>
+
+<style>
+    /* ============== AUTH SHELL ============== */
+    .auth-shell {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    /* ============== LEFT — VISUAL PANEL ============== */
+    .auth-visual {
+        background: linear-gradient(135deg, var(--color-accent-darker) 0%, var(--color-accent) 100%);
+        color: #fff;
+        padding: 3rem 4rem;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+    }
+    .auth-visual::before {
+        content: '';
+        position: absolute; inset: 0;
+        background-image:
+            radial-gradient(circle at 20% 80%, rgba(255,255,255,.1) 0%, transparent 40%),
+            radial-gradient(circle at 80% 20%, rgba(255,255,255,.08) 0%, transparent 40%);
+        pointer-events: none;
+    }
+    .auth-visual::after {
+        content: '';
+        position: absolute;
+        top: 0; right: 0;
+        width: 300px; height: 300px;
+        border: 1px solid rgba(255,255,255,.1);
+        border-radius: 50%;
+        transform: translate(40%, -40%);
+    }
+    .auth-back-link {
+        color: rgba(255,255,255,.7);
+        font-size: .82rem;
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        position: relative; z-index: 2;
+        transition: color var(--t-fast);
+        align-self: flex-start;
+    }
+    .auth-back-link:hover { color: #fff; }
+
+    .auth-visual-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative; z-index: 2;
+    }
+    .auth-visual-eyebrow {
+        text-transform: uppercase;
+        letter-spacing: .28em;
+        font-size: .72rem;
+        opacity: .75;
+        margin-bottom: 1.75rem;
+        font-weight: 600;
+    }
+    .auth-visual-title {
+        font-family: var(--font-serif);
+        font-size: clamp(2.8rem, 5vw, 4.5rem);
+        line-height: 1.02;
+        font-weight: 700;
+        letter-spacing: -.035em;
+        margin-bottom: 1.75rem;
+    }
+    .auth-visual-title em {
+        font-style: italic;
+        color: var(--color-accent-bright);
+        font-weight: 500;
+    }
+    .auth-visual-sub {
+        font-size: 1.05rem;
+        opacity: .82;
+        max-width: 460px;
+        line-height: 1.7;
+        margin-bottom: 2.5rem;
+    }
+    .auth-visual-features {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-bottom: 2.5rem;
+    }
+    .auth-visual-feature {
+        display: flex;
+        align-items: center;
+        gap: .85rem;
+        font-size: .92rem;
+        opacity: .85;
+    }
+    .auth-visual-feature i {
+        font-size: 1.1rem;
+        color: var(--color-accent-bright);
+        width: 24px;
+    }
+    .auth-visual-meta {
+        display: flex;
+        gap: .65rem;
+        opacity: .7;
+        font-size: .82rem;
+        font-weight: 500;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255,255,255,.15);
+    }
+
+    /* Decorative floating circles */
+    .auth-visual-deco {
+        position: absolute;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+    .auth-deco-1 { width: 200px; height: 200px; bottom: -50px; left: -50px; }
+    .auth-deco-2 { width: 120px; height: 120px; top: 40%; right: 10%; }
+    .auth-deco-3 { width: 80px; height: 80px; top: 20%; left: 30%; border-color: rgba(255,255,255,.12); }
+
+    /* ============== RIGHT — FORM PANEL ============== */
+    .auth-form-panel {
+        background: var(--color-bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        overflow-y: auto;
+    }
+    .auth-form-wrap {
+        width: 100%;
+        max-width: 440px;
+        padding: 1.5rem 0;
+    }
+
+    /* Brand */
+    .auth-brand {
+        display: flex;
+        align-items: center;
+        gap: .85rem;
+        margin-bottom: 3rem;
+    }
+    .auth-brand-logo {
+        width: 42px; height: 42px;
+        border-radius: var(--radius-sm);
+        object-fit: cover;
+        box-shadow: var(--shadow-sm);
+    }
+    .auth-brand-mark {
+        width: 42px; height: 42px;
+        border-radius: var(--radius-sm);
+        background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-darker) 100%);
+        color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.3rem;
+        box-shadow: var(--shadow-accent);
+    }
+    .auth-brand-name {
+        font-family: var(--font-serif);
+        font-weight: 700;
+        font-size: 1.05rem;
+        line-height: 1.2;
+        color: var(--color-text);
+    }
+    .auth-brand-sub {
+        font-size: .68rem;
+        color: var(--color-text-muted);
+        letter-spacing: .15em;
+        text-transform: uppercase;
+    }
+
+    /* Form header */
+    .auth-form-header { margin-bottom: 2rem; }
+    .auth-form-eyebrow {
+        display: flex;
+        align-items: center;
+        gap: .65rem;
+        margin-bottom: 1rem;
+    }
+    .auth-eyebrow-line {
+        width: 32px; height: 1px;
+        background: var(--color-accent);
+    }
+    .auth-form-eyebrow span:last-child {
+        font-size: .72rem;
+        text-transform: uppercase;
+        letter-spacing: .25em;
+        color: var(--color-accent);
+        font-weight: 600;
+    }
+    .auth-form-title {
+        font-family: var(--font-serif);
+        font-size: 2.1rem;
+        line-height: 1.1;
+        letter-spacing: -.025em;
+        margin-bottom: .65rem;
+        font-weight: 700;
+    }
+    .auth-form-sub {
+        color: var(--color-text-muted);
+        font-size: .92rem;
+        margin: 0;
+    }
+
+    /* Alert */
+    .auth-alert {
+        background: var(--color-warning-soft);
+        border: 1px solid var(--color-warning);
+        border-radius: var(--radius-sm);
+        padding: .85rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: .65rem;
+        margin-bottom: 1.5rem;
+        color: var(--color-warning);
+        font-size: .88rem;
+    }
+
+    /* Form fields */
+    .auth-form { display: flex; flex-direction: column; gap: 1.25rem; }
+    .auth-field { display: flex; flex-direction: column; }
+    .auth-field .form-label {
+        font-size: .82rem;
+        font-weight: 500;
+        margin-bottom: .5rem;
+        color: var(--color-text);
+    }
+    .auth-input-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+    .auth-input-wrap > i {
+        position: absolute;
+        left: 1rem;
+        color: var(--color-text-soft);
+        font-size: .95rem;
+        pointer-events: none;
+    }
+    .auth-input-wrap .form-control {
+        padding-left: 2.65rem;
+        padding-right: 3rem;
+        height: 48px;
+        font-size: .92rem;
+    }
+    .auth-toggle-pw {
+        position: absolute;
+        right: .65rem;
+        background: transparent;
+        border: none;
+        color: var(--color-text-muted);
+        padding: .5rem;
+        cursor: pointer;
+        border-radius: var(--radius-xs);
+        transition: color var(--t-fast);
+    }
+    .auth-toggle-pw:hover { color: var(--color-text); }
+    .auth-field-error {
+        color: var(--color-danger);
+        font-size: .78rem;
+        margin-top: .35rem;
+    }
+
+    /* Form row */
+    .auth-form-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: -.25rem;
+    }
+    .auth-form-row .form-check-label { font-size: .85rem; color: var(--color-text-muted); }
+    .auth-forgot {
+        font-size: .85rem;
+        color: var(--color-accent);
+        font-weight: 500;
+    }
+    .auth-forgot:hover { color: var(--color-accent-darker); }
+
+    /* Submit */
+    .auth-submit {
+        height: 50px;
+        margin-top: .5rem;
+        font-size: .95rem;
+        font-weight: 600;
+        letter-spacing: .01em;
+    }
+
+    /* Footnote */
+    .auth-form-footnote {
+        margin-top: 2rem;
+        text-align: center;
+        font-size: .88rem;
+        color: var(--color-text-muted);
+    }
+    .auth-form-footnote a {
+        color: var(--color-accent);
+        font-weight: 600;
+        margin-left: .35rem;
+    }
+    .auth-form-footnote a:hover { color: var(--color-accent-darker); }
+
+    /* ============== RESPONSIVE ============== */
+    @media (max-width: 991.98px) {
+        .auth-shell { grid-template-columns: 1fr; }
+        .auth-visual { display: none; }
+        .auth-form-panel { min-height: 100vh; }
+    }
+    @media (max-width: 575.98px) {
+        .auth-form-panel { padding: 1.5rem; }
+        .auth-form-title { font-size: 1.7rem; }
+        .auth-brand { margin-bottom: 2rem; }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('togglePassword').addEventListener('click', function () {
+        const field = document.getElementById('passwordField');
+        const icon = this.querySelector('i');
+        if (field.type === 'password') {
+            field.type = 'text'; icon.classList.replace('bi-eye', 'bi-eye-slash');
+        } else {
+            field.type = 'password'; icon.classList.replace('bi-eye-slash', 'bi-eye');
+        }
+    });
+</script>
+{% endblock %}

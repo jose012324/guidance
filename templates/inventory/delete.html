@@ -1,0 +1,27 @@
+{% extends "partials/app_layout.html" %}
+{% block title %}Delete Item{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div><h1>Delete Item</h1><p class="page-subtitle">This action cannot be undone.</p></div>
+    <div class="page-header-actions">
+        <a href="{% url 'inventory:detail' item.pk %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Back</a>
+    </div>
+</div>
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white"><i class="bi bi-exclamation-triangle me-2"></i>Confirm Deletion</div>
+            <div class="card-body">
+                <p>Delete item <strong>{{ item.name }}</strong> ({{ item.item_code }})?</p>
+                <form method="post" data-disable-on-submit>
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-end gap-2 mt-3">
+                        <a href="{% url 'inventory:detail' item.pk %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-danger"><i class="bi bi-trash me-2"></i>Delete</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

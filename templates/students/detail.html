@@ -1,0 +1,253 @@
+{% extends "partials/app_layout.html" %}
+
+{% block title %}{{ student.full_name }} — Student Profile{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Student Profile</h1>
+        <p class="page-subtitle">{{ student.student_number }} • {{ student.grade_level|default:"" }} {{ student.section|default:"" }}</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'students:list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Back</a>
+        <a href="{% url 'students:edit' student.pk %}" class="btn btn-primary"><i class="bi bi-pencil me-2"></i>Edit</a>
+    </div>
+</div>
+
+<!-- Header card -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="user-avatar" style="width: 70px; height: 70px; font-size: 1.8rem;">
+                        {{ student.first_name|first|default:'S' }}
+                    </div>
+                    <div>
+                        <h2 class="mb-0">{{ student.full_name }}</h2>
+                        <p class="text-muted-soft mb-2">{{ student.student_number }} • {{ student.get_gender_display|default:"" }} • {{ student.age|default:"—" }} years old</p>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <span class="badge badge-{{ student.status }}">{{ student.get_status_display }}</span>
+                            {% if student.grade_level %}<span class="badge bg-secondary">{{ student.grade_level }} {{ student.section }}</span>{% endif %}
+                            {% if student.school_year %}<span class="badge bg-secondary">SY {{ student.school_year }}</span>{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <div class="text-muted-soft small">Registered</div>
+                <div>{{ student.created_at|date:"M d, Y" }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs -->
+<ul class="nav nav-tabs profile-tabs mb-3">
+    <li class="nav-item"><a class="nav-link {% if active_tab == 'personal' %}active{% endif %}" href="?tab=personal">Personal Info</a></li>
+    <li class="nav-item"><a class="nav-link {% if active_tab == 'counseling' %}active{% endif %}" href="?tab=counseling">Counseling History ({{ counseling_sessions|length }})</a></li>
+    <li class="nav-item"><a class="nav-link {% if active_tab == 'referrals' %}active{% endif %}" href="?tab=referrals">Referrals ({{ referrals|length }})</a></li>
+    <li class="nav-item"><a class="nav-link {% if active_tab == 'timeline' %}active{% endif %}" href="?tab=timeline">Activity Timeline</a></li>
+    <li class="nav-item"><a class="nav-link {% if active_tab == 'documents' %}active{% endif %}" href="?tab=documents">Documents ({{ documents|length }})</a></li>
+</ul>
+
+{% if active_tab == 'personal' %}
+<!-- Personal info tab -->
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-info-circle me-2"></i>Personal Information</div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-3 text-muted-soft">Student Number</dt>
+                    <dd class="col-sm-9">{{ student.student_number }}</dd>
+                    <dt class="col-sm-3 text-muted-soft">Full Name</dt>
+                    <dd class="col-sm-9">{{ student.full_name }}</dd>
+                    <dt class="col-sm-3 text-muted-soft">Gender</dt>
+                    <dd class="col-sm-9">{{ student.get_gender_display|default:"—" }}</dd>
+                    <dt class="col-sm-3 text-muted-soft">Birthdate</dt>
+                    <dd class="col-sm-9">{{ student.birthdate|date:"M d, Y"|default:"—" }} {% if student.age %}({{ student.age }} years old){% endif %}</dd>
+                    <dt class="col-sm-3 text-muted-soft">Address</dt>
+                    <dd class="col-sm-9">{{ student.address|default:"—" }}</dd>
+                    <dt class="col-sm-3 text-muted-soft">Contact Number</dt>
+                    <dd class="col-sm-9">{{ student.contact_number|default:"—" }}</dd>
+                    <dt class="col-sm-3 text-muted-soft">Year</dt>
+                    <dd class="col-sm-9">{{ student.grade_level|default:"—" }}</dd>
+                    <dt class="col-sm-3 text-muted-soft">Course & Section</dt>
+                    <dd class="col-sm-9">{{ student.section|default:"—" }}</dd>
+                    <dt class="col-sm-3 text-muted-soft">School Year</dt>
+                    <dd class="col-sm-9">{{ student.school_year|default:"—" }}</dd>
+                    <dt class="col-sm-3 text-muted-soft">Status</dt>
+                    <dd class="col-sm-9"><span class="badge badge-{{ student.status }}">{{ student.get_status_display }}</span></dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-people me-2"></i>Guardians</span>
+                <button class="btn btn-sm btn-soft" data-bs-toggle="modal" data-bs-target="#addGuardianModal">
+                    <i class="bi bi-plus"></i> Add
+                </button>
+            </div>
+            <div class="card-body">
+                {% for g in guardians %}
+                <div class="d-flex justify-content-between py-2 {% if not forloop.last %}border-bottom{% endif %}">
+                    <div>
+                        <div class="fw-medium">{{ g.full_name }} {% if g.is_primary %}<span class="badge bg-primary ms-1">Primary</span>{% endif %}</div>
+                        <small class="text-muted-soft">{{ g.get_relationship_display }} • {{ g.contact_number|default:"" }}</small>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="empty-state py-3"><i class="bi bi-people"></i><p>No guardians added.</p></div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Guardian Modal -->
+<div class="modal fade" id="addGuardianModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'students:add_guardian' student.pk %}">
+                {% csrf_token %}
+                <div class="modal-header"><h5 class="modal-title">Add Guardian</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <div class="mb-3"><label class="form-label">Full Name</label><input type="text" name="full_name" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">Relationship</label>
+                        <select name="relationship" class="form-select">
+                            {% for v, label in student.guardians.model.RELATIONSHIP_CHOICES %}<option value="{{ v }}">{{ label }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3"><label class="form-label">Contact Number</label><input type="text" name="contact_number" class="form-control"></div>
+                    <div class="mb-3"><label class="form-label">Email</label><input type="email" name="email" class="form-control"></div>
+                    <div class="mb-3"><label class="form-label">Address</label><textarea name="address" class="form-control" rows="2"></textarea></div>
+                    <div class="form-check"><input type="checkbox" name="is_primary" class="form-check-input" id="isPrimary"><label class="form-check-label" for="isPrimary">Primary guardian</label></div>
+                </div>
+                <div class="modal-footer"><button class="btn btn-primary">Add Guardian</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% elif active_tab == 'counseling' %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-chat-heart me-2"></i>Counseling History</span>
+        <a href="{% url 'counseling:create' %}?student={{ student.pk }}" class="btn btn-sm btn-soft"><i class="bi bi-plus"></i> New Session</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead><tr><th>Date</th><th>Counselor</th><th>Concern</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+                {% for c in counseling_sessions %}
+                <tr>
+                    <td>{{ c.session_date|date:"M d, Y" }}</td>
+                    <td>{{ c.counselor.full_name }}</td>
+                    <td>{{ c.get_concern_type_display }}</td>
+                    <td><span class="badge badge-{{ c.status }}">{{ c.get_status_display }}</span></td>
+                    <td class="text-end"><a href="{% url 'counseling:detail' c.pk %}" class="btn btn-sm btn-soft">View</a></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5"><div class="empty-state"><i class="bi bi-chat-heart"></i><p>No counseling sessions yet.</p></div></td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% elif active_tab == 'referrals' %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-send-exclamation me-2"></i>Referral History</span>
+        <a href="{% url 'referrals:create' %}?student={{ student.pk }}" class="btn btn-sm btn-soft"><i class="bi bi-plus"></i> New Referral</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead><tr><th>Date</th><th>Type</th><th>Priority</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+                {% for r in referrals %}
+                <tr>
+                    <td>{{ r.referred_at|date:"M d, Y" }}</td>
+                    <td>{{ r.get_referral_type_display }}</td>
+                    <td><span class="badge bg-secondary">{{ r.get_priority_display }}</span></td>
+                    <td><span class="badge badge-{{ r.status }}">{{ r.get_status_display }}</span></td>
+                    <td class="text-end"><a href="{% url 'referrals:detail' r.pk %}" class="btn btn-sm btn-soft">View</a></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5"><div class="empty-state"><i class="bi bi-send-exclamation"></i><p>No referrals yet.</p></div></td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% elif active_tab == 'timeline' %}
+<div class="card">
+    <div class="card-header"><i class="bi bi-clock-history me-2"></i>Activity Timeline</div>
+    <div class="card-body">
+        <div class="timeline">
+            {% for a in activities %}
+            <div class="timeline-item">
+                <div class="d-flex justify-content-between">
+                    <strong>{{ a.title }}</strong>
+                    <small class="text-muted-soft">{{ a.timestamp|date:"M d, Y H:i" }}</small>
+                </div>
+                <p class="mb-0 text-muted-soft small">{{ a.description|default:"" }}</p>
+                <small class="text-muted-soft">By {{ a.performed_by.full_name|default:"System" }} • {{ a.get_activity_type_display }}</small>
+            </div>
+            {% empty %}
+            <div class="empty-state"><i class="bi bi-clock-history"></i><p>No activity recorded.</p></div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% elif active_tab == 'documents' %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-file-earmark me-2"></i>Uploaded Documents</span>
+        <button class="btn btn-sm btn-soft" data-bs-toggle="modal" data-bs-target="#uploadDocModal"><i class="bi bi-upload"></i> Upload</button>
+    </div>
+    <div class="card-body">
+        {% for d in documents %}
+        <div class="d-flex justify-content-between align-items-center py-2 {% if not forloop.last %}border-bottom{% endif %}">
+            <div class="d-flex align-items-center gap-3">
+                <i class="bi bi-file-earmark-text fs-4 text-muted-soft"></i>
+                <div>
+                    <div class="fw-medium">{{ d.title }}</div>
+                    <small class="text-muted-soft">{{ d.get_document_type_display }} • Uploaded {{ d.uploaded_at|date:"M d, Y" }}</small>
+                </div>
+            </div>
+            <a href="{{ d.file.url }}" class="btn btn-sm btn-soft" download><i class="bi bi-download"></i></a>
+        </div>
+        {% empty %}
+        <div class="empty-state"><i class="bi bi-file-earmark"></i><p>No documents uploaded.</p></div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Upload Document Modal -->
+<div class="modal fade" id="uploadDocModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'students:add_document' student.pk %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-header"><h5 class="modal-title">Upload Document</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <div class="mb-3"><label class="form-label">Title</label><input type="text" name="title" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">Type</label>
+                        <select name="document_type" class="form-select">{% for v, l in student.documents.model.DOCUMENT_TYPES %}<option value="{{ v }}">{{ l }}</option>{% endfor %}</select>
+                    </div>
+                    <div class="mb-3"><label class="form-label">File</label><input type="file" name="file" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="2"></textarea></div>
+                </div>
+                <div class="modal-footer"><button class="btn btn-primary">Upload</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

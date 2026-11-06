@@ -1,0 +1,45 @@
+{% extends "partials/app_layout.html" %}
+
+{% block title %}User Activity Logs — {{ school_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>User Activity Logs</h1>
+        <p class="page-subtitle">{{ total_count }} log entries • Showing latest 500 • {{ date_from }} to {{ date_to }}</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'reports:home' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Back</a>
+        <a href="?format=csv&date_from={{ date_from }}&date_to={{ date_to }}" class="btn btn-success"><i class="bi bi-filetype-csv me-2"></i>Export CSV</a>
+        <button onclick="window.print()" class="btn btn-outline-primary"><i class="bi bi-printer me-2"></i>Print</button>
+    </div>
+</div>
+
+<form method="get" class="filter-bar">
+    <div><label class="form-label small">From</label><input type="text" name="date_from" value="{{ date_from|date:'Y-m-d' }}" class="form-control datepicker"></div>
+    <div><label class="form-label small">To</label><input type="text" name="date_to" value="{{ date_to|date:'Y-m-d' }}" class="form-control datepicker"></div>
+    <button type="submit" class="btn btn-soft"><i class="bi bi-funnel me-1"></i>Apply</button>
+</form>
+
+<div class="table-card">
+    <div class="table-responsive">
+        <table class="table table-sm">
+            <thead><tr><th>Timestamp</th><th>User</th><th>Action</th><th>Entity</th><th>Description</th><th>IP</th></tr></thead>
+            <tbody>
+                {% for l in logs %}
+                <tr>
+                    <td>{{ l.timestamp|date:"M d, Y H:i" }}</td>
+                    <td>{{ l.user.full_name|default:"System" }}</td>
+                    <td><span class="badge bg-secondary">{{ l.get_action_display }}</span></td>
+                    <td>{{ l.entity }}</td>
+                    <td>{{ l.description|default:"—" }}</td>
+                    <td>{{ l.ip_address|default:"—" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="text-center text-muted-soft py-3">No activity in this date range.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

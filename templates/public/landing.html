@@ -1,0 +1,1104 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ system_title }} — Home{% endblock %}
+{% block body_class %}public-layout{% endblock %}
+
+{% block content %}
+<!-- =====================================================================
+     SECTION 01 — EDITORIAL HERO (asymmetric)
+     ===================================================================== -->
+<section class="lnd-hero">
+    <!-- LEFT — Editorial copy -->
+    <div class="lnd-hero-copy">
+        <div class="lnd-hero-meta" data-aos="fade-up">
+            <span class="lnd-meta-line"></span>
+            <span class="lnd-meta-text">{{ school_name|default:"Guidance Office" }} · Vol. 01 · {{ school_year }}</span>
+        </div>
+
+        <h1 class="lnd-hero-title" data-aos="fade-up" data-aos-delay="100">
+            Where student<br>
+            records meet<br>
+            <em>quiet precision.</em>
+        </h1>
+
+        <p class="lnd-hero-sub" data-aos="fade-up" data-aos-delay="200">
+            A unified platform for student records, counseling sessions, and referrals —
+            designed for educational institutions that value precision, privacy, and care.
+        </p>
+
+        <div class="lnd-hero-cta" data-aos="fade-up" data-aos-delay="300">
+            {% if user.is_authenticated %}
+                <a href="{% url 'dashboard:home' %}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-grid-1x2-fill me-2"></i>Go to Dashboard
+                </a>
+            {% else %}
+                <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                </a>
+                {% comment %}Register entry point temporarily disabled.
+                <a href="{% url 'accounts:register' %}" class="btn btn-outline-primary btn-lg">
+                    Create Account
+                </a>
+                {% endcomment %}
+            {% endif %}
+            <a href="{% url 'accounts:download_desktop_app' %}" class="btn btn-dark btn-lg">
+                <i class="bi bi-windows me-2"></i>Download Guidance Office
+            </a>
+        </div>
+
+        <div class="lnd-hero-footnote" data-aos="fade-up" data-aos-delay="400">
+            <i class="bi bi-shield-check"></i>
+            <span>Secure · Confidential · Role-based access</span>
+        </div>
+    </div>
+
+    <!-- RIGHT — Floating dashboard preview -->
+    <div class="lnd-hero-visual" data-aos="fade-left" data-aos-delay="200">
+        <div class="lnd-preview-card">
+            <div class="lnd-preview-header">
+                <div class="lnd-preview-dots">
+                    <span></span><span></span><span></span>
+                </div>
+                <div class="lnd-preview-title">{{ school_name|default:"Guidance Office" }} · Dashboard</div>
+            </div>
+            <div class="lnd-preview-body">
+                <div class="lnd-preview-row">
+                    <div class="lnd-preview-stat">
+                        <div class="lnd-preview-stat-value">{{ stats.students|default:0 }}</div>
+                        <div class="lnd-preview-stat-label">Students</div>
+                    </div>
+                    <div class="lnd-preview-stat">
+                        <div class="lnd-preview-stat-value">{{ stats.sessions|default:0 }}</div>
+                        <div class="lnd-preview-stat-label">Sessions</div>
+                    </div>
+                    <div class="lnd-preview-stat">
+                        <div class="lnd-preview-stat-value">{{ stats.referrals|default:0 }}</div>
+                        <div class="lnd-preview-stat-label">Referrals</div>
+                    </div>
+                </div>
+                <div class="lnd-preview-chart">
+                    <div class="lnd-preview-bar" style="height: 35%"></div>
+                    <div class="lnd-preview-bar" style="height: 60%"></div>
+                    <div class="lnd-preview-bar" style="height: 45%"></div>
+                    <div class="lnd-preview-bar" style="height: 80%"></div>
+                    <div class="lnd-preview-bar" style="height: 55%"></div>
+                    <div class="lnd-preview-bar" style="height: 90%"></div>
+                </div>
+                <div class="lnd-preview-activity">
+                    <div class="lnd-preview-activity-item">
+                        <span class="lnd-activity-dot bg-success"></span>
+                        <span>New counseling session recorded</span>
+                        <small>2m ago</small>
+                    </div>
+                    <div class="lnd-preview-activity-item">
+                        <span class="lnd-activity-dot bg-warning"></span>
+                        <span>Student record inventory updated</span>
+                        <small>15m ago</small>
+                    </div>
+                    <div class="lnd-preview-activity-item">
+                        <span class="lnd-activity-dot bg-info"></span>
+                        <span>New referral created</span>
+                        <small>1h ago</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating accent card -->
+        <div class="lnd-floating-card lnd-floating-1" data-aos="zoom-in" data-aos-delay="600">
+            <i class="bi bi-shield-lock-fill"></i>
+            <div>
+                <div class="lnd-floating-title">Encrypted</div>
+                <div class="lnd-floating-sub">End-to-end security</div>
+            </div>
+        </div>
+
+        <!-- Floating accent card 2 -->
+        <div class="lnd-floating-card lnd-floating-2" data-aos="zoom-in" data-aos-delay="700">
+            <i class="bi bi-graph-up-arrow"></i>
+            <div>
+                <div class="lnd-floating-title">+24%</div>
+                <div class="lnd-floating-sub">Sessions this month</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =====================================================================
+     SECTION 02 — TRUST MARQUEE
+     ===================================================================== -->
+<section class="lnd-marquee">
+    <div class="lnd-marquee-track">
+        <span>Student Records</span>
+        <span class="lnd-marquee-dot">·</span>
+        <span>Counseling Tracking</span>
+        <span class="lnd-marquee-dot">·</span>
+        <span>Referral Monitoring</span>
+        <span class="lnd-marquee-dot">·</span>
+        <span>Student Record Inventory</span>
+        <span class="lnd-marquee-dot">·</span>
+        <span>Reports & Analytics</span>
+        <span class="lnd-marquee-dot">·</span>
+        <span>Audit Trails</span>
+        <span class="lnd-marquee-dot">·</span>
+        <span>Role-Based Access</span>
+        <span class="lnd-marquee-dot">·</span>
+        <span>Student Records</span>
+        <span class="lnd-marquee-dot">·</span>
+        <span>Counseling Tracking</span>
+        <span class="lnd-marquee-dot">·</span>
+        <span>Referral Monitoring</span>
+        <span class="lnd-marquee-dot">·</span>
+        <span>Student Record Inventory</span>
+        <span class="lnd-marquee-dot">·</span>
+        <span>Reports & Analytics</span>
+        <span class="lnd-marquee-dot">·</span>
+        <span>Audit Trails</span>
+        <span class="lnd-marquee-dot">·</span>
+        <span>Role-Based Access</span>
+        <span class="lnd-marquee-dot">·</span>
+    </div>
+</section>
+
+<!-- =====================================================================
+     SECTION 03 — STATISTICS BAND (big editorial numbers)
+     ===================================================================== -->
+<section class="lnd-stats-band">
+    <div class="lnd-container">
+        <div class="lnd-section-eyebrow" data-aos="fade-up">
+            <span class="lnd-section-number">01</span>
+            <span>By the numbers</span>
+        </div>
+        <h2 class="lnd-section-title" data-aos="fade-up" data-aos-delay="100">
+            A system that scales with<br>your guidance office.
+        </h2>
+
+        <div class="lnd-stats-grid">
+            <div class="lnd-stat-block" data-aos="fade-up" data-aos-delay="0">
+                <div class="lnd-stat-num">{{ stats.students|default:0 }}</div>
+                <div class="lnd-stat-cap">Students<br>managed</div>
+            </div>
+            <div class="lnd-stat-divider"></div>
+            <div class="lnd-stat-block" data-aos="fade-up" data-aos-delay="100">
+                <div class="lnd-stat-num">{{ stats.sessions|default:0 }}</div>
+                <div class="lnd-stat-cap">Counseling<br>records</div>
+            </div>
+            <div class="lnd-stat-divider"></div>
+            <div class="lnd-stat-block" data-aos="fade-up" data-aos-delay="200">
+                <div class="lnd-stat-num">{{ stats.referrals|default:0 }}</div>
+                <div class="lnd-stat-cap">Referrals<br>monitored</div>
+            </div>
+            <div class="lnd-stat-divider"></div>
+            <div class="lnd-stat-block" data-aos="fade-up" data-aos-delay="300">
+                <div class="lnd-stat-num">3</div>
+                <div class="lnd-stat-cap">Defined<br>user roles</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =====================================================================
+     SECTION 04 — FEATURES (editorial magazine grid)
+     ===================================================================== -->
+<section class="lnd-features" id="features">
+    <div class="lnd-container">
+        <div class="lnd-section-eyebrow" data-aos="fade-up">
+            <span class="lnd-section-number">02</span>
+            <span>System capabilities</span>
+        </div>
+        <h2 class="lnd-section-title" data-aos="fade-up" data-aos-delay="100">
+            Everything the guidance<br>office needs. Nothing it doesn't.
+        </h2>
+        <p class="lnd-section-lead" data-aos="fade-up" data-aos-delay="200">
+            Built with a modular, role-based architecture for schools of any size.
+            Each module works independently yet integrates seamlessly into a single dashboard.
+        </p>
+
+        <div class="lnd-feature-grid">
+            <article class="lnd-feature" data-aos="fade-up" data-aos-delay="0">
+                <div class="lnd-feature-num">01</div>
+                <div class="lnd-feature-icon"><i class="bi bi-mortarboard"></i></div>
+                <h3>Student Records</h3>
+                <p>Centralized directory with personal, academic, and guardian information — searchable, filterable, and fully audited.</p>
+                <ul class="lnd-feature-list">
+                    <li>Personal & academic info</li>
+                    <li>Guardian contacts</li>
+                    <li>Document uploads</li>
+                </ul>
+            </article>
+
+            <article class="lnd-feature" data-aos="fade-up" data-aos-delay="100">
+                <div class="lnd-feature-num">02</div>
+                <div class="lnd-feature-icon"><i class="bi bi-chat-heart"></i></div>
+                <h3>Counseling Tracking</h3>
+                <p>Document each session, monitor cases, and schedule follow-ups with timeline-based progress tracking.</p>
+                <ul class="lnd-feature-list">
+                    <li>Session notes & recommendations</li>
+                    <li>Follow-up reminders</li>
+                    <li>Counselor notes (private/public)</li>
+                </ul>
+            </article>
+
+            <article class="lnd-feature" data-aos="fade-up" data-aos-delay="200">
+                <div class="lnd-feature-num">03</div>
+                <div class="lnd-feature-icon"><i class="bi bi-send-exclamation"></i></div>
+                <h3>Referral Monitoring</h3>
+                <p>From initial referral to closure — track priority, status changes, and counselor notes in one place.</p>
+                <ul class="lnd-feature-list">
+                    <li>Priority levels (low → urgent)</li>
+                    <li>Timeline-based updates</li>
+                    <li>Auto-notifications to counselors</li>
+                </ul>
+            </article>
+
+            <article class="lnd-feature" data-aos="fade-up" data-aos-delay="0">
+                <div class="lnd-feature-num">04</div>
+                <div class="lnd-feature-icon"><i class="bi bi-clipboard-data"></i></div>
+                <h3>Student Record Inventory</h3>
+                <p>A single overview of every student record — counts, guidance coverage, cases, and referrals with visual breakdowns.</p>
+                <ul class="lnd-feature-list">
+                    <li>Record & coverage counts</li>
+                    <li>Year level & course breakdowns</li>
+                    <li>Case and referral totals</li>
+                </ul>
+            </article>
+
+            <article class="lnd-feature" data-aos="fade-up" data-aos-delay="100">
+                <div class="lnd-feature-num">05</div>
+                <div class="lnd-feature-icon"><i class="bi bi-file-earmark-bar-graph"></i></div>
+                <h3>Reporting & Analytics</h3>
+                <p>Generate and export CSV reports across student records, counseling, referrals, and user activity logs.</p>
+                <ul class="lnd-feature-list">
+                    <li>4 report types</li>
+                    <li>Date-range filtering</li>
+                    <li>CSV / Excel exports</li>
+                </ul>
+            </article>
+
+            <article class="lnd-feature" data-aos="fade-up" data-aos-delay="200">
+                <div class="lnd-feature-num">06</div>
+                <div class="lnd-feature-icon"><i class="bi bi-shield-lock"></i></div>
+                <h3>Role-Based Security</h3>
+                <p>Fine-grained permissions for Administrators, Guidance Staff, and Counselors with full audit logging.</p>
+                <ul class="lnd-feature-list">
+                    <li>3 user roles</li>
+                    <li>Login lockout protection</li>
+                    <li>Full system audit trail</li>
+                </ul>
+            </article>
+        </div>
+    </div>
+</section>
+
+<!-- =====================================================================
+     SECTION 05 — PULL QUOTE (editorial)
+     ===================================================================== -->
+<section class="lnd-quote">
+    <div class="lnd-container">
+        <div class="lnd-quote-mark" data-aos="fade-up">"</div>
+        <blockquote data-aos="fade-up" data-aos-delay="100">
+            A guidance office is the quiet architecture of a school —
+            where every record carries a student's story. This system
+            honors that weight with precision, privacy, and care.
+        </blockquote>
+        <div class="lnd-quote-attribution" data-aos="fade-up" data-aos-delay="200">
+            <span class="lnd-quote-line"></span>
+            <div>
+                <div class="lnd-quote-author">Editorial Statement</div>
+                <div class="lnd-quote-source">Design Philosophy · {{ school_year }}</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =====================================================================
+     SECTION 06 — PROCESS / HOW IT WORKS
+     ===================================================================== -->
+<section class="lnd-process">
+    <div class="lnd-container">
+        <div class="lnd-section-eyebrow" data-aos="fade-up">
+            <span class="lnd-section-number">03</span>
+            <span>How it works</span>
+        </div>
+        <h2 class="lnd-section-title" data-aos="fade-up" data-aos-delay="100">
+            From sign-in to insight.<br>Four deliberate steps.
+        </h2>
+
+        <div class="lnd-process-grid">
+            <div class="lnd-process-step" data-aos="fade-up" data-aos-delay="0">
+                <div class="lnd-process-num">01</div>
+                <h4>Sign in securely</h4>
+                <p>Username or email login with optional remember-me and account lockout protection.</p>
+            </div>
+            <div class="lnd-process-step" data-aos="fade-up" data-aos-delay="100">
+                <div class="lnd-process-num">02</div>
+                <h4>Access your dashboard</h4>
+                <p>Role-based dashboard surfaces the metrics that matter — student records, sessions, and referrals.</p>
+            </div>
+            <div class="lnd-process-step" data-aos="fade-up" data-aos-delay="200">
+                <div class="lnd-process-num">03</div>
+                <h4>Work in your module</h4>
+                <p>Create, edit, and track records. Every action is logged in the audit trail for transparency.</p>
+            </div>
+            <div class="lnd-process-step" data-aos="fade-up" data-aos-delay="300">
+                <div class="lnd-process-num">04</div>
+                <h4>Export & report</h4>
+                <p>Generate CSV / Excel reports across any module with date-range filters and print preview.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =====================================================================
+     SECTION 07 — CALL TO ACTION
+     ===================================================================== -->
+<section class="lnd-cta">
+    <div class="lnd-container">
+        <div class="lnd-cta-card" data-aos="zoom-in">
+            <div class="lnd-cta-eyebrow">Get started today</div>
+            <h2 class="lnd-cta-title">
+                Ready to bring your<br>
+                guidance office online?
+            </h2>
+            <p class="lnd-cta-sub">
+                Create your account in seconds. Your administrator will approve access
+                so you can begin managing records with confidence.
+            </p>
+            <div class="lnd-cta-actions">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard:home' %}" class="btn btn-light btn-lg">
+                        <i class="bi bi-grid-1x2-fill me-2"></i>Open Dashboard
+                    </a>
+                {% else %}
+                    {% comment %}Register entry point temporarily disabled.
+                    <a href="{% url 'accounts:register' %}" class="btn btn-light btn-lg">
+                        <i class="bi bi-person-plus me-2"></i>Create Account
+                    </a>
+                    {% endcomment %}
+                    <a href="{% url 'accounts:login' %}" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =====================================================================
+     SECTION 08 — FOOTER
+     ===================================================================== -->
+<footer class="public-footer">
+    <div class="public-footer-grid">
+        <div>
+            <div class="public-footer-brand">
+                <div class="footer-logo-circle">
+                    {% if school_settings and school_settings.school_logo %}
+                        <img src="{{ school_settings.school_logo.url }}" alt="logo" style="width:100%;height:100%;object-fit:contain;border-radius:50%;">
+                    {% else %}
+                        <i class="bi bi-mortarboard-fill"></i>
+                    {% endif %}
+                </div>
+                <div>
+                    <div style="font-family: var(--font-serif); font-size: 1.1rem; font-weight: 700;">{{ school_name|default:"Guidance Office" }}</div>
+                    <div style="font-size: .72rem; opacity: .6; letter-spacing: .1em; text-transform: uppercase;">Records & Analytics</div>
+                </div>
+            </div>
+            <p style="max-width: 380px;">{{ system_title|default:"Guidance Office Records Management System" }} — a unified platform for student records, counseling, and referrals.</p>
+        </div>
+        <div>
+            <h5>Platform</h5>
+            <ul>
+                <li><a href="{% url 'accounts:login' %}">Sign In</a></li>
+                {% comment %}<li><a href="{% url 'accounts:register' %}">Create Account</a></li>{% endcomment %}
+                <li><a href="#features">Features</a></li>
+            </ul>
+        </div>
+        <div>
+            <h5>Modules</h5>
+            <ul>
+                <li>Student Records</li>
+                <li>Counseling Tracking</li>
+                <li>Referral Monitoring</li>
+                <li>Student Record Inventory</li>
+            </ul>
+        </div>
+        <div>
+            <h5>Contact</h5>
+            <ul>
+                {% if school_settings %}
+                    {% if school_settings.school_address %}<li><i class="bi bi-geo-alt me-2"></i>{{ school_settings.school_address }}</li>{% endif %}
+                    {% if school_settings.contact_phone %}<li><i class="bi bi-telephone me-2"></i>{{ school_settings.contact_phone }}</li>{% endif %}
+                    {% if school_settings.contact_email %}<li><i class="bi bi-envelope me-2"></i>{{ school_settings.contact_email }}</li>{% endif %}
+                {% else %}
+                    <li style="opacity: .5;">Contact information not configured.</li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+    <div class="public-footer-bottom">
+        <div class="footer-credits">
+            <span>© {% now "Y" %} {{ school_name|default:"Guidance Office" }}. All rights reserved.</span>
+        </div>
+    </div>
+</footer>
+
+<!-- =====================================================================
+     LANDING PAGE — SECTION-SPECIFIC STYLES
+     ===================================================================== -->
+<style>
+    .lnd-container {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 2.5rem;
+    }
+
+    /* ============== SECTION 01 — HERO ============== */
+    .lnd-hero {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 1.15fr 1fr;
+        align-items: center;
+        padding: 4rem 5rem;
+        gap: 4rem;
+        background:
+            radial-gradient(circle at 20% 30%, var(--color-accent-soft) 0%, transparent 50%),
+            linear-gradient(135deg, var(--color-bg) 0%, var(--color-surface) 100%);
+        position: relative;
+        overflow: hidden;
+    }
+    .lnd-hero::before {
+        content: '';
+        position: absolute;
+        top: 0; right: 0;
+        width: 500px; height: 500px;
+        background: radial-gradient(circle, var(--color-accent-soft) 0%, transparent 70%);
+        opacity: .5;
+        pointer-events: none;
+    }
+    .lnd-hero-copy { position: relative; z-index: 2; }
+
+    .lnd-hero-meta {
+        display: flex;
+        align-items: center;
+        gap: .85rem;
+        margin-bottom: 2rem;
+    }
+    .lnd-meta-line {
+        width: 40px; height: 1px;
+        background: var(--color-accent);
+    }
+    .lnd-meta-text {
+        font-size: .72rem;
+        text-transform: uppercase;
+        letter-spacing: .28em;
+        color: var(--color-accent);
+        font-weight: 600;
+    }
+
+    .lnd-hero-title {
+        font-family: var(--font-serif);
+        font-size: clamp(2.6rem, 5.5vw, 4.8rem);
+        line-height: 1.02;
+        font-weight: 700;
+        letter-spacing: -.035em;
+        margin-bottom: 1.75rem;
+        color: var(--color-text);
+    }
+    .lnd-hero-title em {
+        font-style: italic;
+        color: var(--color-accent);
+        font-weight: 500;
+    }
+
+    .lnd-hero-sub {
+        font-size: 1.15rem;
+        color: var(--color-text-muted);
+        max-width: 540px;
+        margin-bottom: 2.5rem;
+        line-height: 1.7;
+    }
+
+    .lnd-hero-cta {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+    }
+    .lnd-hero-footnote {
+        display: inline-flex;
+        align-items: center;
+        gap: .65rem;
+        font-size: .82rem;
+        color: var(--color-text-muted);
+        padding: .55rem 1rem;
+        background: var(--color-bg);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-pill);
+        box-shadow: var(--shadow-xs);
+    }
+    .lnd-hero-footnote i { color: var(--color-success); }
+
+    /* Hero visual — floating dashboard preview */
+    .lnd-hero-visual {
+        position: relative;
+        z-index: 2;
+    }
+    .lnd-preview-card {
+        background: var(--color-bg);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-xl);
+        overflow: hidden;
+        transform: perspective(1200px) rotateY(-4deg) rotateX(2deg);
+        transition: transform var(--t-slow);
+    }
+    .lnd-preview-card:hover {
+        transform: perspective(1200px) rotateY(0deg) rotateX(0deg);
+    }
+    .lnd-preview-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--color-border-soft);
+        background: var(--color-surface);
+    }
+    .lnd-preview-dots {
+        display: flex;
+        gap: .35rem;
+    }
+    .lnd-preview-dots span {
+        width: 10px; height: 10px;
+        border-radius: 50%;
+        background: var(--color-border);
+    }
+    .lnd-preview-dots span:nth-child(1) { background: #ff5f57; }
+    .lnd-preview-dots span:nth-child(2) { background: #ffbd2e; }
+    .lnd-preview-dots span:nth-child(3) { background: #28ca42; }
+    .lnd-preview-title {
+        font-size: .78rem;
+        color: var(--color-text-muted);
+        font-weight: 500;
+    }
+    .lnd-preview-body { padding: 1.5rem; }
+    .lnd-preview-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: .75rem;
+        margin-bottom: 1.5rem;
+    }
+    .lnd-preview-stat {
+        padding: 1rem;
+        background: var(--color-surface);
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--color-border-soft);
+    }
+    .lnd-preview-stat-value {
+        font-family: var(--font-serif);
+        font-size: 1.85rem;
+        font-weight: 700;
+        color: var(--color-accent);
+        line-height: 1;
+    }
+    .lnd-preview-stat-label {
+        font-size: .7rem;
+        color: var(--color-text-muted);
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        margin-top: .35rem;
+    }
+    .lnd-preview-chart {
+        display: flex;
+        align-items: flex-end;
+        gap: .5rem;
+        height: 90px;
+        padding: 1rem;
+        background: var(--color-surface);
+        border-radius: var(--radius-sm);
+        margin-bottom: 1.25rem;
+    }
+    .lnd-preview-bar {
+        flex: 1;
+        background: linear-gradient(180deg, var(--color-accent) 0%, var(--color-accent-darker) 100%);
+        border-radius: var(--radius-xs);
+        opacity: .85;
+        animation: barGrow 1s ease both;
+        transform-origin: bottom;
+    }
+    @keyframes barGrow {
+        from { transform: scaleY(0); }
+        to   { transform: scaleY(1); }
+    }
+    .lnd-preview-activity {
+        display: flex;
+        flex-direction: column;
+        gap: .6rem;
+    }
+    .lnd-preview-activity-item {
+        display: flex;
+        align-items: center;
+        gap: .65rem;
+        font-size: .8rem;
+        color: var(--color-text);
+    }
+    .lnd-preview-activity-item small {
+        margin-left: auto;
+        color: var(--color-text-muted);
+        font-size: .72rem;
+    }
+    .lnd-activity-dot {
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    /* Floating accent cards */
+    .lnd-floating-card {
+        position: absolute;
+        background: var(--color-bg);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius);
+        padding: .85rem 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: .85rem;
+        box-shadow: var(--shadow-lg);
+        animation: float 4s ease-in-out infinite;
+    }
+    .lnd-floating-card i {
+        font-size: 1.4rem;
+        color: var(--color-accent);
+    }
+    .lnd-floating-title {
+        font-family: var(--font-serif);
+        font-weight: 700;
+        font-size: 1rem;
+        line-height: 1.1;
+    }
+    .lnd-floating-sub {
+        font-size: .72rem;
+        color: var(--color-text-muted);
+    }
+    .lnd-floating-1 {
+        top: -20px;
+        left: -30px;
+        animation-delay: 0s;
+    }
+    .lnd-floating-2 {
+        bottom: -20px;
+        right: -30px;
+        animation-delay: 2s;
+    }
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    /* ============== SECTION 02 — MARQUEE ============== */
+    .lnd-marquee {
+        background: var(--color-text);
+        color: #fff;
+        padding: 1.25rem 0;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+    [data-bs-theme="dark"] .lnd-marquee { background: #000; }
+    .lnd-marquee-track {
+        display: inline-flex;
+        align-items: center;
+        gap: 2rem;
+        animation: marquee 30s linear infinite;
+        font-family: var(--font-serif);
+        font-size: 1.4rem;
+        font-style: italic;
+        font-weight: 500;
+    }
+    .lnd-marquee-dot {
+        color: var(--color-accent-bright);
+        font-style: normal;
+    }
+    @keyframes marquee {
+        from { transform: translateX(0); }
+        to   { transform: translateX(-50%); }
+    }
+
+    /* ============== SECTION 03 — STATS BAND ============== */
+    .lnd-stats-band {
+        padding: 6rem 0;
+        background: var(--color-bg);
+        border-bottom: 1px solid var(--color-border);
+    }
+    .lnd-section-eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+    }
+    .lnd-section-number {
+        font-family: var(--font-serif);
+        font-style: italic;
+        font-size: 1.1rem;
+        color: var(--color-accent);
+        font-weight: 500;
+    }
+    .lnd-section-eyebrow > span:last-child {
+        font-size: .72rem;
+        text-transform: uppercase;
+        letter-spacing: .25em;
+        color: var(--color-text-muted);
+        font-weight: 600;
+    }
+    .lnd-section-title {
+        font-size: clamp(2rem, 4vw, 3rem);
+        line-height: 1.1;
+        letter-spacing: -.025em;
+        margin-bottom: 1rem;
+    }
+    .lnd-section-lead {
+        font-size: 1.05rem;
+        color: var(--color-text-muted);
+        max-width: 640px;
+        line-height: 1.7;
+        margin-bottom: 3rem;
+    }
+    .lnd-stats-grid {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+        gap: 2rem;
+        align-items: center;
+        margin-top: 3rem;
+    }
+    .lnd-stat-block { text-align: center; }
+    .lnd-stat-num {
+        font-family: var(--font-serif);
+        font-size: clamp(3.5rem, 6vw, 5rem);
+        font-weight: 700;
+        color: var(--color-accent);
+        line-height: 1;
+        letter-spacing: -.04em;
+    }
+    .lnd-stat-cap {
+        margin-top: .85rem;
+        font-size: .82rem;
+        color: var(--color-text-muted);
+        text-transform: uppercase;
+        letter-spacing: .12em;
+        font-weight: 500;
+        line-height: 1.4;
+    }
+    .lnd-stat-divider {
+        width: 1px;
+        height: 80px;
+        background: var(--color-border);
+    }
+
+    /* ============== SECTION 04 — FEATURES ============== */
+    .lnd-features {
+        padding: 7rem 0;
+        background: var(--color-surface);
+    }
+    .lnd-feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 1.75rem;
+        margin-top: 3.5rem;
+    }
+    .lnd-feature {
+        background: var(--color-bg);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius);
+        padding: 2.5rem 2rem;
+        transition: all var(--t-base);
+        position: relative;
+        overflow: hidden;
+    }
+    .lnd-feature::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 3px;
+        background: linear-gradient(90deg, var(--color-accent), var(--color-accent-bright));
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform var(--t-base);
+    }
+    .lnd-feature:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--color-accent);
+    }
+    .lnd-feature:hover::before { transform: scaleX(1); }
+    .lnd-feature-num {
+        font-family: var(--font-serif);
+        font-style: italic;
+        font-size: 1rem;
+        color: var(--color-accent);
+        margin-bottom: 1.25rem;
+        font-weight: 500;
+    }
+    .lnd-feature-icon {
+        width: 58px; height: 58px;
+        border-radius: var(--radius-sm);
+        background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-darker) 100%);
+        color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.6rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--shadow-accent);
+    }
+    .lnd-feature h3 {
+        font-size: 1.35rem;
+        margin-bottom: .85rem;
+        letter-spacing: -.02em;
+    }
+    .lnd-feature p {
+        color: var(--color-text-muted);
+        font-size: .92rem;
+        line-height: 1.7;
+        margin-bottom: 1.25rem;
+    }
+    .lnd-feature-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        border-top: 1px solid var(--color-border-soft);
+        padding-top: 1.25rem;
+    }
+    .lnd-feature-list li {
+        font-size: .82rem;
+        color: var(--color-text-muted);
+        padding: .35rem 0;
+        padding-left: 1.4rem;
+        position: relative;
+    }
+    .lnd-feature-list li::before {
+        content: '—';
+        position: absolute;
+        left: 0;
+        color: var(--color-accent);
+        font-weight: 600;
+    }
+
+    /* ============== SECTION 05 — PULL QUOTE ============== */
+    .lnd-quote {
+        padding: 7rem 0;
+        background: var(--color-accent-darker);
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+    }
+    .lnd-quote::before {
+        content: '';
+        position: absolute;
+        top: -200px; right: -200px;
+        width: 600px; height: 600px;
+        border: 1px solid rgba(255, 255, 255, .08);
+        border-radius: 50%;
+    }
+    .lnd-quote::after {
+        content: '';
+        position: absolute;
+        bottom: -300px; left: -100px;
+        width: 500px; height: 500px;
+        border: 1px solid rgba(255, 255, 255, .05);
+        border-radius: 50%;
+    }
+    .lnd-quote .lnd-container { position: relative; z-index: 1; }
+    .lnd-quote-mark {
+        font-family: var(--font-serif);
+        font-size: 8rem;
+        line-height: .8;
+        color: var(--color-accent-bright);
+        font-style: italic;
+        margin-bottom: 1rem;
+    }
+    .lnd-quote blockquote {
+        font-family: var(--font-serif);
+        font-size: clamp(1.6rem, 3vw, 2.4rem);
+        font-weight: 500;
+        line-height: 1.4;
+        letter-spacing: -.02em;
+        margin: 0 0 2.5rem;
+        max-width: 900px;
+        font-style: italic;
+    }
+    .lnd-quote-attribution {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    .lnd-quote-line {
+        width: 50px; height: 1px;
+        background: rgba(255, 255, 255, .4);
+    }
+    .lnd-quote-author {
+        font-weight: 600;
+        font-size: .95rem;
+    }
+    .lnd-quote-source {
+        font-size: .8rem;
+        opacity: .65;
+        text-transform: uppercase;
+        letter-spacing: .12em;
+        margin-top: .2rem;
+    }
+
+    /* ============== SECTION 06 — PROCESS ============== */
+    .lnd-process {
+        padding: 7rem 0;
+        background: var(--color-bg);
+    }
+    .lnd-process-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 2rem;
+        margin-top: 3.5rem;
+    }
+    .lnd-process-step {
+        position: relative;
+        padding: 2rem 1.5rem;
+        border-top: 2px solid var(--color-border);
+        transition: border-color var(--t-base);
+    }
+    .lnd-process-step:hover {
+        border-top-color: var(--color-accent);
+    }
+    .lnd-process-num {
+        font-family: var(--font-serif);
+        font-style: italic;
+        font-size: 2.5rem;
+        color: var(--color-accent);
+        line-height: 1;
+        margin-bottom: 1.25rem;
+        font-weight: 500;
+    }
+    .lnd-process-step h4 {
+        font-size: 1.2rem;
+        margin-bottom: .75rem;
+        letter-spacing: -.02em;
+    }
+    .lnd-process-step p {
+        color: var(--color-text-muted);
+        font-size: .9rem;
+        line-height: 1.65;
+        margin: 0;
+    }
+
+    /* ============== SECTION 07 — CTA ============== */
+    .lnd-cta {
+        padding: 6rem 0 7rem;
+        background: var(--color-surface);
+    }
+    .lnd-cta-card {
+        background: linear-gradient(135deg, var(--color-accent-darker) 0%, var(--color-accent) 100%);
+        border-radius: var(--radius-xl);
+        padding: 4.5rem 4rem;
+        text-align: center;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow-xl);
+    }
+    .lnd-cta-card::before {
+        content: '';
+        position: absolute;
+        top: 0; right: 0;
+        width: 400px; height: 400px;
+        background: radial-gradient(circle, rgba(255, 255, 255, .1) 0%, transparent 70%);
+    }
+    .lnd-cta-eyebrow {
+        text-transform: uppercase;
+        letter-spacing: .25em;
+        font-size: .72rem;
+        opacity: .7;
+        margin-bottom: 1rem;
+        position: relative;
+    }
+    .lnd-cta-title {
+        font-family: var(--font-serif);
+        font-size: clamp(2rem, 4vw, 3rem);
+        line-height: 1.1;
+        margin-bottom: 1.25rem;
+        letter-spacing: -.025em;
+        position: relative;
+    }
+    .lnd-cta-sub {
+        font-size: 1.05rem;
+        opacity: .85;
+        max-width: 580px;
+        margin: 0 auto 2.5rem;
+        line-height: 1.7;
+        position: relative;
+    }
+    .lnd-cta-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        position: relative;
+    }
+    .lnd-cta .btn-light {
+        background: #fff;
+        color: var(--color-accent-darker);
+        border-color: #fff;
+    }
+    .lnd-cta .btn-light:hover {
+        background: var(--color-surface);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+    .lnd-cta .btn-outline-light {
+        color: #fff;
+        border-color: rgba(255, 255, 255, .5);
+    }
+    .lnd-cta .btn-outline-light:hover {
+        background: rgba(255, 255, 255, .1);
+        border-color: #fff;
+    }
+
+    /* ============== RESPONSIVE ============== */
+    @media (max-width: 1199.98px) {
+        .lnd-hero {
+            grid-template-columns: 1fr;
+            padding: 3rem 2rem;
+            gap: 3rem;
+            text-align: center;
+        }
+        .lnd-hero-meta, .lnd-hero-footnote { justify-content: center; }
+        .lnd-hero-sub { margin-left: auto; margin-right: auto; }
+        .lnd-hero-cta { justify-content: center; }
+        .lnd-preview-card { max-width: 540px; margin: 0 auto; transform: none; }
+        .lnd-floating-1 { left: 10px; }
+        .lnd-floating-2 { right: 10px; }
+    }
+    @media (max-width: 991.98px) {
+        .lnd-stats-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+        }
+        .lnd-stat-divider { display: none; }
+    }
+    @media (max-width: 767.98px) {
+        .lnd-container { padding: 0 1.5rem; }
+        .lnd-hero { padding: 2rem 1.5rem; min-height: auto; }
+        .lnd-hero-title { font-size: 2.2rem; }
+        .lnd-hero-sub { font-size: 1rem; }
+        .lnd-floating-card { display: none; }
+        .lnd-stats-band, .lnd-features, .lnd-quote, .lnd-process, .lnd-cta {
+            padding: 4rem 0;
+        }
+        .lnd-stats-grid {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        .lnd-stat-num { font-size: 3rem; }
+        .lnd-feature { padding: 2rem 1.5rem; }
+        .lnd-cta-card { padding: 3rem 1.75rem; }
+        .lnd-cta-actions { flex-direction: column; }
+        .lnd-cta-actions .btn { width: 100%; }
+        .lnd-quote blockquote { font-size: 1.4rem; }
+        .lnd-section-title { font-size: 1.85rem; }
+    }
+</style>
+{% endblock %}

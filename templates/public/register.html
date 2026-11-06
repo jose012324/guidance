@@ -1,0 +1,563 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Create Account — {{ school_name }}{% endblock %}
+{% block body_class %}public-layout{% endblock %}
+
+{% block content %}
+<div class="auth-shell">
+    <!-- ============== LEFT — Visual panel ============== -->
+    <aside class="auth-visual">
+        <a href="{% url 'accounts:login' %}" class="auth-back-link">
+            <i class="bi bi-arrow-left"></i> Back to sign in
+        </a>
+
+        <div class="auth-visual-content">
+            <div class="auth-visual-eyebrow">Get Started · {{ school_year }}</div>
+            <h1 class="auth-visual-title">
+                Join the<br>
+                <em>Guidance</em><br>
+                Office.
+            </h1>
+            <p class="auth-visual-sub">
+                Create an account to access student records, counseling workflows,
+                referrals, and inventory. Your account will be reviewed and approved
+                by an administrator before you can sign in.
+            </p>
+
+            <div class="auth-visual-features">
+                <div class="auth-visual-feature">
+                    <i class="bi bi-people-fill"></i>
+                    <span>Three role types: Administrator, Guidance Staff, Counselor</span>
+                </div>
+                <div class="auth-visual-feature">
+                    <i class="bi bi-shield-lock-fill"></i>
+                    <span>Secure password hashing and account lockout protection</span>
+                </div>
+                <div class="auth-visual-feature">
+                    <i class="bi bi-clipboard-check-fill"></i>
+                    <span>Full audit trail of every action across the system</span>
+                </div>
+            </div>
+
+            <div class="auth-visual-meta">
+                <span><i class="bi bi-shield-check me-1"></i>Secure</span>
+                <span>·</span>
+                <span><i class="bi bi-people me-1"></i>3 Roles</span>
+                <span>·</span>
+                <span><i class="bi bi-phone me-1"></i>Mobile-First</span>
+            </div>
+        </div>
+
+        <!-- Decorative elements -->
+        <div class="auth-visual-deco auth-deco-1"></div>
+        <div class="auth-visual-deco auth-deco-2"></div>
+        <div class="auth-visual-deco auth-deco-3"></div>
+    </aside>
+
+    <!-- ============== RIGHT — Form panel ============== -->
+    <main class="auth-form-panel">
+        <div class="auth-form-wrap">
+            <div class="auth-brand">
+                {% if school_settings and school_settings.school_logo %}
+                    <img src="{{ school_settings.school_logo.url }}" alt="logo" class="auth-brand-logo">
+                {% else %}
+                    <div class="auth-brand-mark"><i class="bi bi-mortarboard-fill"></i></div>
+                {% endif %}
+                <div>
+                    <div class="auth-brand-name">{{ school_name|default:"Guidance Office" }}</div>
+                    <div class="auth-brand-sub">Records & Inventory</div>
+                </div>
+            </div>
+
+            <div class="auth-form-header">
+                <div class="auth-form-eyebrow">
+                    <span class="auth-eyebrow-line"></span>
+                    <span>Create account</span>
+                </div>
+                <h2 class="auth-form-title">Request access<br>to the platform.</h2>
+                <p class="auth-form-sub">Fill out the form below — your administrator will review and approve.</p>
+            </div>
+
+            <form method="post" data-disable-on-submit class="auth-form">
+                {% csrf_token %}
+
+                <!-- Personal Information -->
+                <div class="auth-section">
+                    <div class="auth-section-label">01 — Personal Information</div>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">First Name <span class="text-danger">*</span></label>
+                            <input type="text" name="first_name" class="form-control" value="{{ form.first_name.value|default:'' }}" required>
+                            {% if form.first_name.errors %}<div class="auth-field-error">{{ form.first_name.errors|join:', ' }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Middle Name</label>
+                            <input type="text" name="middle_name" class="form-control" value="{{ form.middle_name.value|default:'' }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                            <input type="text" name="last_name" class="form-control" value="{{ form.last_name.value|default:'' }}" required>
+                            {% if form.last_name.errors %}<div class="auth-field-error">{{ form.last_name.errors|join:', ' }}</div>{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Information -->
+                <div class="auth-section">
+                    <div class="auth-section-label">02 — Account Information</div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Username <span class="text-danger">*</span></label>
+                            <input type="text" name="username" class="form-control" value="{{ form.username.value|default:'' }}" required>
+                            {% if form.username.errors %}<div class="auth-field-error">{{ form.username.errors|join:', ' }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email <span class="text-danger">*</span></label>
+                            <input type="email" name="email" class="form-control" value="{{ form.email.value|default:'' }}" required>
+                            {% if form.email.errors %}<div class="auth-field-error">{{ form.email.errors|join:', ' }}</div>{% endif %}
+                        </div>
+                    </div>
+                    <div class="row g-3 mt-1">
+                        <div class="col-md-6">
+                            <label class="form-label">Password</label>
+                            <div class="auth-input-wrap">
+                                <i class="bi bi-lock"></i>
+                                <input type="password" name="password1" id="password1" class="form-control" required>
+                            </div>
+                            <div class="auth-strength">
+                                <div class="auth-strength-bar"><div class="auth-strength-fill" id="strengthBar"></div></div>
+                                <small class="text-muted-soft">At least 8 characters with a mix of letters and numbers.</small>
+                            </div>
+                            {% if form.password1.errors %}<div class="auth-field-error">{{ form.password1.errors|join:', ' }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Confirm Password</label>
+                            <div class="auth-input-wrap">
+                                <i class="bi bi-lock-fill"></i>
+                                <input type="password" name="password2" class="form-control" required>
+                            </div>
+                            {% if form.password2.errors %}<div class="auth-field-error">{{ form.password2.errors|join:', ' }}</div>{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Role Selection -->
+                <div class="auth-section">
+                    <div class="auth-section-label">03 — Role Selection</div>
+                    <label class="form-label">Role <span class="text-danger">*</span></label>
+                    <select name="role" class="form-select" required>
+                        <option value="">— Select Role —</option>
+                        {% for r in form.role.field.queryset %}
+                            <option value="{{ r.pk }}" {% if form.role.value|slugify == r.pk|slugify %}selected{% endif %}>{{ r.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <small class="text-muted-soft">{{ form.role.help_text }}</small>
+                    {% if form.role.errors %}<div class="auth-field-error">{{ form.role.errors|join:', ' }}</div>{% endif %}
+
+                    <!-- Role helper cards -->
+                    <div class="auth-role-hints">
+                        <div class="auth-role-hint">
+                            <i class="bi bi-shield-fill"></i>
+                            <div>
+                                <strong>Administrator</strong>
+                                <span>Full system access</span>
+                            </div>
+                        </div>
+                        <div class="auth-role-hint">
+                            <i class="bi bi-people-fill"></i>
+                            <div>
+                                <strong>Guidance Staff</strong>
+                                <span>Students, counseling, referrals, inventory</span>
+                            </div>
+                        </div>
+                        <div class="auth-role-hint">
+                            <i class="bi bi-chat-heart-fill"></i>
+                            <div>
+                                <strong>Counselor</strong>
+                                <span>Student profiles, counseling, referrals</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg w-100 auth-submit">
+                    <i class="bi bi-person-plus me-2"></i>Create Account
+                </button>
+            </form>
+
+            <div class="auth-form-footnote">
+                <span>Already have an account?</span>
+                <a href="{% url 'accounts:login' %}">Sign in <i class="bi bi-arrow-right ms-1"></i></a>
+            </div>
+        </div>
+    </main>
+</div>
+
+<style>
+    /* ============== AUTH SHELL (shared with login) ============== */
+    .auth-shell {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    /* ============== LEFT — VISUAL PANEL ============== */
+    .auth-visual {
+        background: linear-gradient(135deg, var(--color-accent-darker) 0%, var(--color-accent) 100%);
+        color: #fff;
+        padding: 3rem 4rem;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+    }
+    .auth-visual::before {
+        content: '';
+        position: absolute; inset: 0;
+        background-image:
+            radial-gradient(circle at 20% 80%, rgba(255,255,255,.1) 0%, transparent 40%),
+            radial-gradient(circle at 80% 20%, rgba(255,255,255,.08) 0%, transparent 40%);
+        pointer-events: none;
+    }
+    .auth-visual::after {
+        content: '';
+        position: absolute;
+        top: 0; right: 0;
+        width: 300px; height: 300px;
+        border: 1px solid rgba(255,255,255,.1);
+        border-radius: 50%;
+        transform: translate(40%, -40%);
+    }
+    .auth-back-link {
+        color: rgba(255,255,255,.7);
+        font-size: .82rem;
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        position: relative; z-index: 2;
+        transition: color var(--t-fast);
+        align-self: flex-start;
+    }
+    .auth-back-link:hover { color: #fff; }
+
+    .auth-visual-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative; z-index: 2;
+    }
+    .auth-visual-eyebrow {
+        text-transform: uppercase;
+        letter-spacing: .28em;
+        font-size: .72rem;
+        opacity: .75;
+        margin-bottom: 1.75rem;
+        font-weight: 600;
+    }
+    .auth-visual-title {
+        font-family: var(--font-serif);
+        font-size: clamp(2.8rem, 5vw, 4.5rem);
+        line-height: 1.02;
+        font-weight: 700;
+        letter-spacing: -.035em;
+        margin-bottom: 1.75rem;
+    }
+    .auth-visual-title em {
+        font-style: italic;
+        color: var(--color-accent-bright);
+        font-weight: 500;
+    }
+    .auth-visual-sub {
+        font-size: 1.05rem;
+        opacity: .82;
+        max-width: 460px;
+        line-height: 1.7;
+        margin-bottom: 2.5rem;
+    }
+    .auth-visual-features {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-bottom: 2.5rem;
+    }
+    .auth-visual-feature {
+        display: flex;
+        align-items: center;
+        gap: .85rem;
+        font-size: .92rem;
+        opacity: .85;
+    }
+    .auth-visual-feature i {
+        font-size: 1.1rem;
+        color: var(--color-accent-bright);
+        width: 24px;
+    }
+    .auth-visual-meta {
+        display: flex;
+        gap: .65rem;
+        opacity: .7;
+        font-size: .82rem;
+        font-weight: 500;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255,255,255,.15);
+    }
+
+    .auth-visual-deco {
+        position: absolute;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+    .auth-deco-1 { width: 200px; height: 200px; bottom: -50px; left: -50px; }
+    .auth-deco-2 { width: 120px; height: 120px; top: 40%; right: 10%; }
+    .auth-deco-3 { width: 80px; height: 80px; top: 20%; left: 30%; border-color: rgba(255,255,255,.12); }
+
+    /* ============== RIGHT — FORM PANEL ============== */
+    .auth-form-panel {
+        background: var(--color-bg);
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 2.5rem 2rem;
+        overflow-y: auto;
+        max-height: 100vh;
+    }
+    .auth-form-wrap {
+        width: 100%;
+        max-width: 540px;
+        padding: 1.5rem 0;
+    }
+
+    /* Brand */
+    .auth-brand {
+        display: flex;
+        align-items: center;
+        gap: .85rem;
+        margin-bottom: 2.5rem;
+    }
+    .auth-brand-logo {
+        width: 42px; height: 42px;
+        border-radius: var(--radius-sm);
+        object-fit: cover;
+        box-shadow: var(--shadow-sm);
+    }
+    .auth-brand-mark {
+        width: 42px; height: 42px;
+        border-radius: var(--radius-sm);
+        background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-darker) 100%);
+        color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.3rem;
+        box-shadow: var(--shadow-accent);
+    }
+    .auth-brand-name {
+        font-family: var(--font-serif);
+        font-weight: 700;
+        font-size: 1.05rem;
+        line-height: 1.2;
+        color: var(--color-text);
+    }
+    .auth-brand-sub {
+        font-size: .68rem;
+        color: var(--color-text-muted);
+        letter-spacing: .15em;
+        text-transform: uppercase;
+    }
+
+    /* Form header */
+    .auth-form-header { margin-bottom: 2rem; }
+    .auth-form-eyebrow {
+        display: flex;
+        align-items: center;
+        gap: .65rem;
+        margin-bottom: 1rem;
+    }
+    .auth-eyebrow-line {
+        width: 32px; height: 1px;
+        background: var(--color-accent);
+    }
+    .auth-form-eyebrow span:last-child {
+        font-size: .72rem;
+        text-transform: uppercase;
+        letter-spacing: .25em;
+        color: var(--color-accent);
+        font-weight: 600;
+    }
+    .auth-form-title {
+        font-family: var(--font-serif);
+        font-size: 2.1rem;
+        line-height: 1.1;
+        letter-spacing: -.025em;
+        margin-bottom: .65rem;
+        font-weight: 700;
+    }
+    .auth-form-sub {
+        color: var(--color-text-muted);
+        font-size: .92rem;
+        margin: 0;
+    }
+
+    /* Form sections */
+    .auth-form { display: flex; flex-direction: column; gap: 1.5rem; }
+    .auth-section {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border-soft);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+    }
+    .auth-section-label {
+        font-family: var(--font-serif);
+        font-style: italic;
+        font-size: .85rem;
+        color: var(--color-accent);
+        margin-bottom: 1.25rem;
+        font-weight: 500;
+        letter-spacing: -.005em;
+    }
+    .auth-section .form-label {
+        font-size: .82rem;
+        font-weight: 500;
+        margin-bottom: .4rem;
+        color: var(--color-text);
+    }
+    .auth-section .form-control,
+    .auth-section .form-select {
+        height: 44px;
+        font-size: .9rem;
+        background: var(--color-bg);
+    }
+    .auth-field-error {
+        color: var(--color-danger);
+        font-size: .78rem;
+        margin-top: .35rem;
+    }
+
+    /* Input wrap (for password fields) */
+    .auth-input-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+    .auth-input-wrap > i {
+        position: absolute;
+        left: 1rem;
+        color: var(--color-text-soft);
+        font-size: .95rem;
+        pointer-events: none;
+        z-index: 2;
+    }
+    .auth-input-wrap .form-control { padding-left: 2.65rem; }
+
+    /* Password strength */
+    .auth-strength { margin-top: .65rem; }
+    .auth-strength-bar {
+        height: 4px;
+        background: var(--color-surface-3);
+        border-radius: var(--radius-pill);
+        overflow: hidden;
+        margin-bottom: .4rem;
+    }
+    .auth-strength-fill {
+        height: 100%;
+        width: 0%;
+        background: var(--color-danger);
+        border-radius: var(--radius-pill);
+        transition: width var(--t-base), background var(--t-base);
+    }
+
+    /* Role hints */
+    .auth-role-hints {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: .65rem;
+        margin-top: 1.25rem;
+    }
+    .auth-role-hint {
+        display: flex;
+        align-items: center;
+        gap: .65rem;
+        padding: .75rem .85rem;
+        background: var(--color-bg);
+        border: 1px solid var(--color-border-soft);
+        border-radius: var(--radius-sm);
+        transition: all var(--t-fast);
+    }
+    .auth-role-hint:hover {
+        border-color: var(--color-accent);
+        transform: translateY(-1px);
+    }
+    .auth-role-hint i {
+        color: var(--color-accent);
+        font-size: 1.1rem;
+    }
+    .auth-role-hint strong {
+        display: block;
+        font-size: .82rem;
+        color: var(--color-text);
+        font-weight: 600;
+    }
+    .auth-role-hint span {
+        display: block;
+        font-size: .7rem;
+        color: var(--color-text-muted);
+        margin-top: .1rem;
+    }
+
+    /* Submit */
+    .auth-submit {
+        height: 50px;
+        margin-top: .5rem;
+        font-size: .95rem;
+        font-weight: 600;
+        letter-spacing: .01em;
+    }
+
+    /* Footnote */
+    .auth-form-footnote {
+        margin-top: 1.75rem;
+        text-align: center;
+        font-size: .88rem;
+        color: var(--color-text-muted);
+    }
+    .auth-form-footnote a {
+        color: var(--color-accent);
+        font-weight: 600;
+        margin-left: .35rem;
+    }
+    .auth-form-footnote a:hover { color: var(--color-accent-darker); }
+
+    /* ============== RESPONSIVE ============== */
+    @media (max-width: 991.98px) {
+        .auth-shell { grid-template-columns: 1fr; }
+        .auth-visual { display: none; }
+        .auth-form-panel { min-height: 100vh; max-height: none; }
+    }
+    @media (max-width: 575.98px) {
+        .auth-form-panel { padding: 1.5rem; }
+        .auth-form-title { font-size: 1.7rem; }
+        .auth-brand { margin-bottom: 1.5rem; }
+        .auth-section { padding: 1.25rem; }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('password1').addEventListener('input', function () {
+        const v = this.value;
+        let score = 0;
+        if (v.length >= 8) score++;
+        if (/[A-Z]/.test(v)) score++;
+        if (/[a-z]/.test(v)) score++;
+        if (/[0-9]/.test(v)) score++;
+        if (/[^A-Za-z0-9]/.test(v)) score++;
+        const bar = document.getElementById('strengthBar');
+        const widths = ['0%', '20%', '40%', '60%', '80%', '100%'];
+        const colors = ['#e9ecef', '#b91c1c', '#b91c1c', '#b8730a', '#2c7da0', '#1c7c54'];
+        bar.style.width = widths[score];
+        bar.style.background = colors[score] || '#b91c1c';
+    });
+</script>
+{% endblock %}

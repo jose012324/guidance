@@ -1,0 +1,161 @@
+{% extends "partials/app_layout.html" %}
+
+{% block title %}{{ item.name }} — Item Details{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>{{ item.name }}</h1>
+        <p class="page-subtitle">{{ item.item_code }} • {{ item.get_category_display }}</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'inventory:list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Back</a>
+        <a href="{% url 'inventory:edit' item.pk %}" class="btn btn-primary"><i class="bi bi-pencil me-2"></i>Edit</a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-8">
+        <!-- Stats row -->
+        <div class="row g-3 mb-3">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-accent"><i class="bi bi-box"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value">{{ item.quantity }}</div>
+                        <div class="stat-label">In Stock ({{ item.unit }})</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-warning-soft"><i class="bi bi-exclamation-triangle"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value">{{ item.reorder_level }}</div>
+                        <div class="stat-label">Reorder Level</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon {% if item.stock_status == 'available' %}bg-success-soft{% elif item.stock_status == 'low_stock' %}bg-warning-soft{% else %}bg-danger-soft{% endif %}">
+                        <i class="bi bi-circle-fill"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value" style="font-size: 1.3rem;">{{ item.stock_status_display }}</div>
+                        <div class="stat-label">Current Status</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock adjustment -->
+        <div class="card mb-3">
+            <div class="card-header"><i class="bi bi-arrow-down-up me-2"></i>Stock Adjustment</div>
+            <div class="card-body">
+                <form method="post" action="{% url 'inventory:detail' item.pk %}">
+                    {% csrf_token %}
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label">Action</label>
+                            {{ adjust_form.movement_type }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Quantity</label>
+                            <input type="number" name="quantity" class="form-control" min="1" value="1" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Note</label>
+                            <input type="text" name="note" class="form-control" placeholder="Optional note">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-check-lg me-1"></i>Apply</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Movement history -->
+        <div class="card mb-3">
+            <div class="card-header"><i class="bi bi-clock-history me-2"></i>Stock Movement History</div>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead><tr><th>Type</th><th>Qty</th><th>Balance</th><th>By</th><th>Date</th><th>Note</th></tr></thead>
+                    <tbody>
+                        {% for m in movements %}
+                        <tr>
+                            <td><span class="badge bg-secondary">{{ m.get_movement_type_display }}</span></td>
+                            <td>{{ m.quantity }}</td>
+                            <td>{{ m.balance_after }}</td>
+                            <td>{{ m.performed_by.full_name|default:"—" }}</td>
+                            <td>{{ m.timestamp|date:"M d, Y H:i" }}</td>
+                            <td>{{ m.note|default:"—" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="6" class="text-center text-muted-soft py-3">No movements recorded.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Borrowed records -->
+        <div class="card">
+            <div class="card-header"><i class="bi bi-arrow-left-right me-2"></i>Borrowing History</div>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead><tr><th>Borrower</th><th>Qty</th><th>Borrowed</th><th>Return Due</th><th>Status</th></tr></thead>
+                    <tbody>
+                        {% for b in borrowed %}
+                        <tr>
+                            <td>{{ b.borrower_name }}</td>
+                            <td>{{ b.quantity }}</td>
+                            <td>{{ b.borrow_date|date:"M d, Y" }}</td>
+                            <td>{{ b.expected_return_date|date:"M d, Y"|default:"—" }}</td>
+                            <td><span class="badge badge-{{ b.status }}">{{ b.get_status_display }}</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" class="text-center text-muted-soft py-3">No borrowing records.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-info-circle me-2"></i>Item Details</div>
+            <div class="card-body">
+                <dl class="row mb-0 small">
+                    <dt class="col-sm-5 text-muted-soft">Item Code</dt>
+                    <dd class="col-sm-7">{{ item.item_code }}</dd>
+                    <dt class="col-sm-5 text-muted-soft">Category</dt>
+                    <dd class="col-sm-7">{{ item.get_category_display }}</dd>
+                    <dt class="col-sm-5 text-muted-soft">Unit</dt>
+                    <dd class="col-sm-7">{{ item.unit }}</dd>
+                    <dt class="col-sm-5 text-muted-soft">Quantity</dt>
+                    <dd class="col-sm-7">{{ item.quantity }}</dd>
+                    <dt class="col-sm-5 text-muted-soft">Reorder Level</dt>
+                    <dd class="col-sm-7">{{ item.reorder_level }}</dd>
+                    <dt class="col-sm-5 text-muted-soft">Created</dt>
+                    <dd class="col-sm-7">{{ item.created_at|date:"M d, Y" }}</dd>
+                </dl>
+                {% if item.description %}
+                <hr>
+                <p class="small mb-0">{{ item.description|linebreaksbr }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header"><i class="bi bi-three-dots me-2"></i>Actions</div>
+            <div class="card-body">
+                <a href="{% url 'inventory:edit' item.pk %}" class="btn btn-outline-secondary btn-sm w-100 mb-2"><i class="bi bi-pencil me-1"></i>Edit Item</a>
+                <a href="{% url 'inventory:delete' item.pk %}" class="btn btn-outline-danger btn-sm w-100"><i class="bi bi-trash me-1"></i>Delete Item</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

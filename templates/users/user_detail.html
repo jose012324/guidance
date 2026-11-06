@@ -1,0 +1,86 @@
+{% extends "partials/app_layout.html" %}
+
+{% block title %}{{ target_user.full_name }} — User Details{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>User Details</h1>
+        <p class="page-subtitle">Profile and activity summary for {{ target_user.full_name }}.</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'accounts:user_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back
+        </a>
+        <a href="{% url 'accounts:user_edit' target_user.pk %}" class="btn btn-primary">
+            <i class="bi bi-pencil me-2"></i>Edit
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <div class="user-avatar mx-auto mb-3" style="width: 110px; height: 110px; font-size: 2.5rem;">
+                    {% if target_user.avatar %}<img src="{{ target_user.avatar.url }}" alt="">{% else %}{{ target_user.first_name|first|default:target_user.username|first|upper }}{% endif %}
+                </div>
+                <h3 class="mb-1">{{ target_user.full_name }}</h3>
+                <p class="text-muted-soft mb-2">{{ target_user.username }}</p>
+                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                    {% if target_user.role %}<span class="badge bg-secondary">{{ target_user.role.name }}</span>{% endif %}
+                    <span class="badge badge-{{ target_user.status }}">{{ target_user.get_status_display }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-person-lines-fill me-2"></i>Information</div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-3 text-muted-soft">Employee ID</dt>
+                    <dd class="col-sm-9">{{ target_user.employee_id|default:"—" }}</dd>
+                    <dt class="col-sm-3 text-muted-soft">Email</dt>
+                    <dd class="col-sm-9">{{ target_user.email }}</dd>
+                    <dt class="col-sm-3 text-muted-soft">Contact</dt>
+                    <dd class="col-sm-9">{{ target_user.contact_number|default:"—" }}</dd>
+                    <dt class="col-sm-3 text-muted-soft">Role</dt>
+                    <dd class="col-sm-9">{{ target_user.role.name|default:"—" }}</dd>
+                    <dt class="col-sm-3 text-muted-soft">Status</dt>
+                    <dd class="col-sm-9"><span class="badge badge-{{ target_user.status }}">{{ target_user.get_status_display }}</span></dd>
+                    <dt class="col-sm-3 text-muted-soft">Date Joined</dt>
+                    <dd class="col-sm-9">{{ target_user.date_joined|date:"M d, Y H:i" }}</dd>
+                    <dt class="col-sm-3 text-muted-soft">Last Login</dt>
+                    <dd class="col-sm-9">{{ target_user.last_login|date:"M d, Y H:i"|default:"Never" }}</dd>
+                    {% if target_user.approved_by %}
+                    <dt class="col-sm-3 text-muted-soft">Approved By</dt>
+                    <dd class="col-sm-9">{{ target_user.approved_by.full_name }} on {{ target_user.approved_at|date:"M d, Y" }}</dd>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header"><i class="bi bi-clock-history me-2"></i>Recent Activity</div>
+            <div class="card-body">
+                {% for log in target_user.system_logs.all|slice:":10" %}
+                <div class="d-flex gap-3 py-2 border-bottom" style="border-color: var(--color-border-soft) !important;">
+                    <i class="bi {% if log.action == 'create' %}bi-plus-circle-fill{% elif log.action == 'update' %}bi-pencil-fill{% elif log.action == 'delete' %}bi-trash-fill{% elif log.action == 'login' %}bi-box-arrow-in-right{% elif log.action == 'logout' %}bi-box-arrow-right{% else %}bi-activity{% endif %} text-muted-soft mt-1"></i>
+                    <div class="flex-grow-1">
+                        <div class="small">{{ log.description }}</div>
+                        <small class="text-muted-soft">{{ log.timestamp|timesince }} ago · {{ log.entity }}</small>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="empty-state py-4">
+                    <i class="bi bi-clock-history"></i>
+                    <p class="mb-0">No recent activity.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

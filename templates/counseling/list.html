@@ -1,0 +1,71 @@
+{% extends "partials/app_layout.html" %}
+
+{% block title %}Counseling Records — {{ school_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Counseling Records</h1>
+        <p class="page-subtitle">Track sessions, monitor cases, and review counseling history.</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'counseling:create' %}" class="btn btn-primary"><i class="bi bi-plus-circle me-2"></i>New Session</a>
+    </div>
+</div>
+
+<form method="get" class="filter-bar">
+    <div class="flex-grow-1" style="min-width: 220px;">
+        <input type="text" name="search" value="{{ filter_form.search.value|default:'' }}" class="form-control" placeholder="Search student name, summary...">
+    </div>
+    <div style="min-width: 180px;">{{ filter_form.counselor }}</div>
+    <div style="min-width: 160px;">{{ filter_form.concern_type }}</div>
+    <div style="min-width: 140px;">{{ filter_form.status }}</div>
+    <div style="min-width: 140px;"><input type="text" name="date_from" value="{{ filter_form.date_from.value|date:'Y-m-d'|default:'' }}" class="form-control datepicker" placeholder="From"></div>
+    <div style="min-width: 140px;"><input type="text" name="date_to" value="{{ filter_form.date_to.value|date:'Y-m-d'|default:'' }}" class="form-control datepicker" placeholder="To"></div>
+    <button type="submit" class="btn btn-soft"><i class="bi bi-funnel me-1"></i>Filter</button>
+    <a href="{% url 'counseling:list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-clockwise"></i></a>
+</form>
+
+<div class="table-card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr><th>Date</th><th>Student</th><th>Counselor</th><th>Concern</th><th>Status</th><th>Follow-up</th><th class="text-end">Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for s in sessions %}
+                <tr>
+                    <td>{{ s.session_date|date:"M d, Y" }}</td>
+                    <td><a href="{% url 'students:detail' s.student.pk %}">{{ s.student.full_name }}</a></td>
+                    <td>{{ s.counselor.full_name }}</td>
+                    <td><span class="badge bg-secondary">{{ s.get_concern_type_display }}</span></td>
+                    <td><span class="badge badge-{{ s.status }}">{{ s.get_status_display }}</span></td>
+                    <td>{{ s.follow_up_date|date:"M d, Y"|default:"—" }}</td>
+                    <td class="text-end">
+                        <a href="{% url 'counseling:detail' s.pk %}" class="btn btn-sm btn-soft"><i class="bi bi-eye"></i></a>
+                        <a href="{% url 'counseling:edit' s.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7"><div class="empty-state"><i class="bi bi-chat-heart"></i><h4>No sessions found</h4><p>Try adjusting your filters or create a new session.</p></div></td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if sessions.has_other_pages %}
+    <div class="d-flex justify-content-between align-items-center p-3 border-top">
+        <div class="text-muted-soft small">Showing {{ sessions.start_index }}–{{ sessions.end_index }} of {{ sessions.paginator.count }} sessions</div>
+        <nav>
+            <ul class="pagination pagination-sm mb-0">
+                {% if sessions.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ sessions.previous_page_number }}&{{ request.GET.urlencode }}"><i class="bi bi-chevron-left"></i></a></li>{% endif %}
+                {% for n in sessions.paginator.page_range %}
+                    {% if sessions.number == n %}<li class="page-item active"><span class="page-link">{{ n }}</span></li>
+                    {% elif n > sessions.number|add:'-3' and n < sessions.number|add:'3' %}<li class="page-item"><a class="page-link" href="?page={{ n }}&{{ request.GET.urlencode }}">{{ n }}</a></li>{% endif %}
+                {% endfor %}
+                {% if sessions.has_next %}<li class="page-item"><a class="page-link" href="?page={{ sessions.next_page_number }}&{{ request.GET.urlencode }}"><i class="bi bi-chevron-right"></i></a></li>{% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

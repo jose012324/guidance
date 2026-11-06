@@ -1,0 +1,58 @@
+GUIDANCE OFFICE — RECORDS & INVENTORY MANAGEMENT SYSTEM
+END USER LICENSE AGREEMENT (EULA)
+
+Copyright (c) 2026 Guidance Office. All rights reserved.
+
+IMPORTANT — READ CAREFULLY BEFORE USING THIS SOFTWARE.
+
+This End User License Agreement ("Agreement") is a legal agreement between you 
+("User") and Guidance Office ("Licensor") for the Guidance Office Records & 
+Inventory Management System desktop application ("Software").
+
+BY INSTALLING, COPYING, OR OTHERWISE USING THE SOFTWARE, YOU AGREE TO BE BOUND 
+BY THE TERMS OF THIS AGREEMENT. IF YOU DO NOT AGREE TO THE TERMS, DO NOT INSTALL 
+OR USE THE SOFTWARE.
+
+1. LICENSE GRANT
+   Licensor grants you a non-exclusive, non-transferable license to install and 
+   use one copy of the Software on a single computer for your internal business 
+   purposes, subject to the terms of this Agreement.
+
+2. RESTRICTIONS
+   You may NOT:
+   a) Copy, modify, or distribute the Software or any portion thereof;
+   b) Reverse engineer, decompile, or disassemble the Software;
+   c) Rent, lease, or lend the Software to third parties;
+   d) Use the Software for any unlawful purpose.
+
+3. DATA PRIVACY
+   The Software processes student records and guidance office data locally. 
+   All data is stored on your local system and transmitted only to your 
+   configured Django backend server. The Licensor does not collect, store, 
+   or transmit any user data to external servers.
+
+4. INTELLECTUAL PROPERTY
+   The Software, including all copies and derivative works, remains the 
+   exclusive property of the Licensor. All title, ownership rights, and 
+   intellectual property rights in and to the Software shall remain with 
+   the Licensor.
+
+5. LIMITATION OF LIABILITY
+   IN NO EVENT SHALL THE LICENSOR BE LIABLE FOR ANY INDIRECT, INCIDENTAL, 
+   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES ARISING OUT OF OR IN 
+   CONNECTION WITH THE USE OR INABILITY TO USE THE SOFTWARE.
+
+6. TERMINATION
+   This Agreement is effective until terminated. The Licensor may terminate 
+   this Agreement at any time if you fail to comply with any term. Upon 
+   termination, you must destroy all copies of the Software.
+
+7. GOVERNING LAW
+   This Agreement shall be governed by the laws of the applicable jurisdiction 
+   without regard to conflict of law provisions.
+
+8. ENTIRE AGREEMENT
+   This Agreement constitutes the entire agreement between the parties and 
+   supersedes all prior or contemporaneous agreements regarding the Software.
+
+Guidance Office — Records & Inventory Management System v1.0.0

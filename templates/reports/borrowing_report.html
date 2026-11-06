@@ -1,0 +1,47 @@
+{% extends "partials/app_layout.html" %}
+
+{% block title %}Borrowing Report — {{ school_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Borrowing Report</h1>
+        <p class="page-subtitle">{{ borrowed|length }} records • {{ date_from }} to {{ date_to }}</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'reports:home' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Back</a>
+        <a href="?format=csv&date_from={{ date_from }}&date_to={{ date_to }}" class="btn btn-success"><i class="bi bi-filetype-csv me-2"></i>Export CSV</a>
+        <button onclick="window.print()" class="btn btn-outline-primary"><i class="bi bi-printer me-2"></i>Print</button>
+    </div>
+</div>
+
+<form method="get" class="filter-bar">
+    <div><label class="form-label small">From</label><input type="text" name="date_from" value="{{ date_from|date:'Y-m-d' }}" class="form-control datepicker"></div>
+    <div><label class="form-label small">To</label><input type="text" name="date_to" value="{{ date_to|date:'Y-m-d' }}" class="form-control datepicker"></div>
+    <button type="submit" class="btn btn-soft"><i class="bi bi-funnel me-1"></i>Apply</button>
+</form>
+
+<div class="table-card">
+    <div class="table-responsive">
+        <table class="table table-sm">
+            <thead><tr><th>Borrower</th><th>Department</th><th>Item</th><th>Qty</th><th>Borrowed</th><th>Expected Return</th><th>Actual Return</th><th>Status</th></tr></thead>
+            <tbody>
+                {% for b in borrowed %}
+                <tr>
+                    <td>{{ b.borrower_name }}</td>
+                    <td>{{ b.department|default:"—" }}</td>
+                    <td>{{ b.item.name }}</td>
+                    <td>{{ b.quantity }}</td>
+                    <td>{{ b.borrow_date|date:"M d, Y" }}</td>
+                    <td>{{ b.expected_return_date|date:"M d, Y"|default:"—" }}</td>
+                    <td>{{ b.actual_return_date|date:"M d, Y"|default:"—" }}</td>
+                    <td><span class="badge badge-{{ b.status }}">{{ b.get_status_display }}</span></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8" class="text-center text-muted-soft py-3">No borrowing records in this date range.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

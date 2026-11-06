@@ -1,0 +1,86 @@
+{% extends "partials/app_layout.html" %}
+
+{% block title %}{% if is_create %}New Counseling Session{% else %}Edit Session{% endif %} — {{ school_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>{% if is_create %}New Counseling Session{% else %}Edit Counseling Session{% endif %}</h1>
+        <p class="page-subtitle">Document the session details, notes, and recommendations.</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'counseling:list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Back</a>
+    </div>
+</div>
+
+<form method="post" data-disable-on-submit>
+    {% csrf_token %}
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <div class="card mb-3">
+                <div class="card-header"><i class="bi bi-info-circle me-2"></i>Session Information</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            {% include 'partials/student_search.html' with field=form.student label='Student' required=True %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Counselor <span class="text-danger">*</span></label>
+                            {{ form.counselor }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Session Date <span class="text-danger">*</span></label>
+                            {{ form.session_date }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Concern Type</label>
+                            {{ form.concern_type }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Status</label>
+                            {{ form.status }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Follow-up Date</label>
+                            {{ form.follow_up_date }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header"><i class="bi bi-journal-text me-2"></i>Session Content</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Summary</label>
+                        {{ form.summary }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Detailed Notes</label>
+                        {{ form.notes }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Recommendations / Next Steps</label>
+                        {{ form.recommendations }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-lightbulb me-2"></i>Quick Reference</div>
+                <div class="card-body">
+                    <p class="small text-muted-soft">Use the <strong>Summary</strong> field for a one-line overview. Use <strong>Notes</strong> for the detailed session record. Mark <strong>Recommendations</strong> for the action items or follow-up plan.</p>
+                    <p class="small text-muted-soft">Status flow: <span class="badge bg-secondary">Open</span> → <span class="badge bg-secondary">Ongoing</span> → <span class="badge bg-secondary">Closed</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-3">
+        <a href="{% url 'counseling:list' %}" class="btn btn-outline-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-save me-2"></i>{% if is_create %}Create Session{% else %}Save Changes{% endif %}</button>
+    </div>
+</form>
+{% endblock %}

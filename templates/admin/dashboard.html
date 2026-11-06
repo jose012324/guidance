@@ -1,0 +1,251 @@
+{% extends "partials/app_layout.html" %}
+
+{% block title %}Dashboard — {{ school_name }}{% endblock %}
+
+{% block content %}
+<!-- Page header -->
+<div class="page-header">
+    <div>
+        <h1>Welcome, {{ user.first_name|default:user.username }}</h1>
+        <p class="page-subtitle">Here's what's happening in your guidance office today.</p>
+    </div>
+    <div class="page-header-actions">
+        <span class="text-muted-soft small"><i class="bi bi-calendar3 me-1"></i>{% now "l, F j, Y" %}</span>
+    </div>
+</div>
+
+<!-- KPI cards — Row 1 -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3" data-aos="fade-up" data-aos-delay="0">
+        <div class="stat-card">
+            <div class="stat-icon bg-accent"><i class="bi bi-mortarboard-fill"></i></div>
+            <div class="stat-info">
+                <div class="stat-value">{{ kpis.total_students }}</div>
+                <div class="stat-label">Total Students</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3" data-aos="fade-up" data-aos-delay="100">
+        <div class="stat-card">
+            <div class="stat-icon bg-success-soft"><i class="bi bi-chat-heart-fill"></i></div>
+            <div class="stat-info">
+                <div class="stat-value">{{ kpis.sessions_total }}</div>
+                <div class="stat-label">Counseling Sessions</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3" data-aos="fade-up" data-aos-delay="200">
+        <div class="stat-card">
+            <div class="stat-icon bg-warning-soft"><i class="bi bi-send-exclamation-fill"></i></div>
+            <div class="stat-info">
+                <div class="stat-value">{{ kpis.referrals_pending }}</div>
+                <div class="stat-label">Pending Referrals</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3" data-aos="fade-up" data-aos-delay="400">
+        <div class="stat-card">
+            <div class="stat-icon bg-success-soft"><i class="bi bi-check-circle-fill"></i></div>
+            <div class="stat-info">
+                <div class="stat-value">{{ kpis.active_students }}</div>
+                <div class="stat-label">Active Students</div>
+            </div>
+        </div>
+    </div>
+    <!-- <div class="col-sm-6 col-xl-3" data-aos="fade-up" data-aos-delay="300">
+        <div class="stat-card">
+            <div class="stat-icon bg-info-soft"><i class="bi bi-box-seam-fill"></i></div>
+            <div class="stat-info">
+                <div class="stat-value">{{ kpis.inventory_total }}</div>
+                <div class="stat-label">Inventory Items</div>
+            </div>
+        </div>
+    </div> -->
+</div>
+
+<!-- KPI cards — Row 2 -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3" data-aos="fade-up" data-aos-delay="100">
+        <div class="stat-card">
+            <div class="stat-icon bg-accent"><i class="bi bi-hourglass-split"></i></div>
+            <div class="stat-info">
+                <div class="stat-value">{{ kpis.sessions_open }}</div>
+                <div class="stat-label">Open Sessions</div>
+            </div>
+        </div>
+    </div>
+    <!-- <div class="col-sm-6 col-xl-3" data-aos="fade-up" data-aos-delay="200">
+        <div class="stat-card">
+            <div class="stat-icon bg-warning-soft"><i class="bi bi-exclamation-triangle-fill"></i></div>
+            <div class="stat-info">
+                <div class="stat-value">{{ kpis.low_stock_count }}</div>
+                <div class="stat-label">Low Stock Items</div>
+            </div>
+        </div>
+    </div> -->
+    <!-- <div class="col-sm-6 col-xl-3" data-aos="fade-up" data-aos-delay="300">
+        <div class="stat-card">
+            <div class="stat-icon bg-info-soft"><i class="bi bi-arrow-left-right"></i></div>
+            <div class="stat-info">
+                <div class="stat-value">{{ kpis.borrowed_active }}</div>
+                <div class="stat-label">Active Borrowed Items</div>
+            </div>
+        </div>
+    </div> -->
+</div>
+
+<!-- Charts -->
+<div class="row g-3 mb-4">
+    <div class="col-lg-8">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-graph-up me-2"></i>Monthly Trends</span>
+                <small class="text-muted-soft">Last 6 months</small>
+            </div>
+            <div class="card-body">
+                <canvas id="trendChart" height="110"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header"><i class="bi bi-pie-chart-fill me-2"></i>Counseling by Concern Type</div>
+            <div class="card-body d-flex align-items-center">
+                <canvas id="concernChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Activity feed + low stock -->
+<div class="row g-3">
+    <div class="col-lg-7">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-activity me-2"></i>Recent Activity</span>
+                {% if can_view_reports %}
+                <a href="{% url 'configurations:database' %}" class="small">View all logs</a>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% for log in activity_logs %}
+                <div class="d-flex gap-3 py-2 {% if not forloop.last %}border-bottom{% endif %}" style="border-color: var(--color-border-soft) !important;">
+                    <div class="stat-icon bg-accent" style="width:36px; height:36px; font-size:.9rem;">
+                        {% if log.action == 'create' %}<i class="bi bi-plus-circle-fill"></i>
+                        {% elif log.action == 'update' %}<i class="bi bi-pencil-fill"></i>
+                        {% elif log.action == 'delete' %}<i class="bi bi-trash-fill"></i>
+                        {% elif log.action == 'login' %}<i class="bi bi-box-arrow-in-right"></i>
+                        {% elif log.action == 'logout' %}<i class="bi bi-box-arrow-right"></i>
+                        {% elif log.action == 'export' %}<i class="bi bi-download"></i>
+                        {% elif log.action == 'backup' %}<i class="bi bi-database-fill"></i>
+                        {% else %}<i class="bi bi-activity"></i>{% endif %}
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="small fw-medium">{{ log.description|default:log.entity }}</div>
+                        <small class="text-muted-soft">
+                            {{ log.user.full_name|default:"System" }} · {{ log.timestamp|timesince }} ago
+                        </small>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="empty-state py-4"><i class="bi bi-activity"></i><p class="mb-0">No recent activity.</p></div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <!-- <div class="col-lg-5">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>Low Stock Alerts</span>
+                <a href="{% url 'inventory:stock_monitoring' %}" class="small">View all</a>
+            </div>
+            <div class="card-body">
+                {% for item in low_stock_items %}
+                <div class="d-flex justify-content-between align-items-center py-2 {% if not forloop.last %}border-bottom{% endif %}" style="border-color: var(--color-border-soft) !important;">
+                    <div>
+                        <div class="fw-medium">{{ item.name }}</div>
+                        <small class="text-muted-soft">{{ item.item_code }} · {{ item.quantity }} {{ item.unit }} left</small>
+                    </div>
+                    <span class="badge badge-{{ item.stock_status }}">{{ item.stock_status_display }}</span>
+                </div>
+                {% empty %}
+                <div class="empty-state py-4"><i class="bi bi-check-circle"></i><p class="mb-0">All items well stocked.</p></div>
+                {% endfor %}
+            </div>
+        </div>
+    </div> -->
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Trend chart
+    const trendCtx = document.getElementById('trendChart').getContext('2d');
+    new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: [{% for t in counseling_trend %}"{{ t.label }}"{% if not forloop.last %},{% endif %}{% endfor %}],
+            datasets: [
+                {
+                    label: 'Counseling Sessions',
+                    data: [{% for t in counseling_trend %}{{ t.value }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                    borderColor: '#1a3a6b',
+                    backgroundColor: 'rgba(26, 58, 107, .1)',
+                    fill: true, tension: .4,
+                    borderWidth: 2,
+                    pointBackgroundColor: '#1a3a6b',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                },
+                {
+                    label: 'Referrals',
+                    data: [{% for t in referral_trend %}{{ t.value }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                    borderColor: '#b8730a',
+                    backgroundColor: 'rgba(184, 115, 10, .1)',
+                    fill: true, tension: .4,
+                    borderWidth: 2,
+                    pointBackgroundColor: '#b8730a',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                },
+            ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top', labels: { usePointStyle: true, padding: 15 } },
+            },
+            scales: {
+                y: { beginAtZero: true, ticks: { precision: 0, color: '#9aa0a6' }, grid: { color: 'rgba(0,0,0,.05)' } },
+                x: { ticks: { color: '#9aa0a6' }, grid: { display: false } },
+            },
+        },
+    });
+
+    // Concern chart
+    const concernCtx = document.getElementById('concernChart').getContext('2d');
+    new Chart(concernCtx, {
+        type: 'doughnut',
+        data: {
+            labels: [{% for l in concern_labels %}"{{ l }}"{% if not forloop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                data: [{% for v in concern_values %}{{ v }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                backgroundColor: [{% for c in concern_colors %}"{{ c }}"{% if not forloop.last %},{% endif %}{% endfor %}],
+                borderWidth: 2,
+                borderColor: getComputedStyle(document.documentElement).getPropertyValue('--color-bg'),
+            }],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 12, font: { size: 11 } } } },
+            cutout: '65%',
+        },
+    });
+</script>
+{% endblock %}

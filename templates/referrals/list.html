@@ -1,0 +1,74 @@
+{% extends "partials/app_layout.html" %}
+
+{% block title %}Referral Management — {{ school_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Referral Management</h1>
+        <p class="page-subtitle">Create, monitor, and close student referrals.</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'referrals:create' %}" class="btn btn-primary"><i class="bi bi-plus-circle me-2"></i>New Referral</a>
+    </div>
+</div>
+
+<form method="get" class="filter-bar">
+    <div class="flex-grow-1" style="min-width: 220px;">
+        <input type="text" name="search" value="{{ filter_form.search.value|default:'' }}" class="form-control" placeholder="Search student, reason, or referral type...">
+    </div>
+    <div style="min-width: 140px;">{{ filter_form.status }}</div>
+    <div style="min-width: 140px;">{{ filter_form.priority }}</div>
+    <div style="min-width: 180px;">{{ filter_form.referral_type }}</div>
+    <button type="submit" class="btn btn-soft"><i class="bi bi-funnel me-1"></i>Filter</button>
+    <a href="{% url 'referrals:list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-clockwise"></i></a>
+</form>
+
+<div class="table-card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr><th>#</th><th>Student</th><th>Type</th><th>Priority</th><th>Status</th><th>Assigned To</th><th>Referred</th><th class="text-end">Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for r in referrals %}
+                <tr>
+                    <td>#{{ r.pk }}</td>
+                    <td><a href="{% url 'students:detail' r.student.pk %}">{{ r.student.full_name }}</a></td>
+                    <td>{{ r.get_referral_type_display }}</td>
+                    <td>
+                        {% if r.priority == 'urgent' %}<span class="badge bg-danger">{{ r.get_priority_display }}</span>
+                        {% elif r.priority == 'high' %}<span class="badge bg-warning text-dark">{{ r.get_priority_display }}</span>
+                        {% else %}<span class="badge bg-secondary">{{ r.get_priority_display }}</span>{% endif %}
+                    </td>
+                    <td><span class="badge badge-{{ r.status }}">{{ r.get_status_display }}</span></td>
+                    <td>{{ r.assigned_counselor.full_name|default:"—" }}</td>
+                    <td>{{ r.referred_at|date:"M d, Y" }}</td>
+                    <td class="text-end">
+                        <a href="{% url 'referrals:detail' r.pk %}" class="btn btn-sm btn-soft"><i class="bi bi-eye"></i></a>
+                        <a href="{% url 'referrals:edit' r.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8"><div class="empty-state"><i class="bi bi-send-exclamation"></i><h4>No referrals found</h4><p>Try adjusting your filters or create a new referral.</p></div></td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if referrals.has_other_pages %}
+    <div class="d-flex justify-content-between align-items-center p-3 border-top">
+        <div class="text-muted-soft small">Showing {{ referrals.start_index }}–{{ referrals.end_index }} of {{ referrals.paginator.count }} referrals</div>
+        <nav>
+            <ul class="pagination pagination-sm mb-0">
+                {% if referrals.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ referrals.previous_page_number }}&{{ request.GET.urlencode }}"><i class="bi bi-chevron-left"></i></a></li>{% endif %}
+                {% for n in referrals.paginator.page_range %}
+                    {% if referrals.number == n %}<li class="page-item active"><span class="page-link">{{ n }}</span></li>
+                    {% elif n > referrals.number|add:'-3' and n < referrals.number|add:'3' %}<li class="page-item"><a class="page-link" href="?page={{ n }}&{{ request.GET.urlencode }}">{{ n }}</a></li>{% endif %}
+                {% endfor %}
+                {% if referrals.has_next %}<li class="page-item"><a class="page-link" href="?page={{ referrals.next_page_number }}&{{ request.GET.urlencode }}"><i class="bi bi-chevron-right"></i></a></li>{% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

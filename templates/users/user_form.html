@@ -1,0 +1,126 @@
+{% extends "partials/app_layout.html" %}
+
+{% block title %}{% if is_create %}Add User{% else %}Edit User{% endif %} — {{ school_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>{% if is_create %}Add New User{% else %}Edit User{% endif %}</h1>
+        <p class="page-subtitle">
+            {% if is_create %}
+                Create a new system user with a defined role and initial password.
+            {% else %}
+                Update {{ target_user.full_name }}'s information.
+            {% endif %}
+        </p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'accounts:user_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="post" data-disable-on-submit>
+                    {% csrf_token %}
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">{{ form.non_field_errors|join:', ' }}</div>
+                    {% endif %}
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">First Name <span class="text-danger">*</span></label>
+                            <input type="text" name="first_name" class="form-control" value="{{ form.first_name.value|default:'' }}" required>
+                            {% if form.first_name.errors %}<div class="text-danger small">{{ form.first_name.errors|join:', ' }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Middle Name</label>
+                            <input type="text" name="middle_name" class="form-control" value="{{ form.middle_name.value|default:'' }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                            <input type="text" name="last_name" class="form-control" value="{{ form.last_name.value|default:'' }}" required>
+                            {% if form.last_name.errors %}<div class="text-danger small">{{ form.last_name.errors|join:', ' }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Username <span class="text-danger">*</span></label>
+                            <input type="text" name="username" class="form-control" value="{{ form.username.value|default:'' }}" required>
+                            {% if form.username.errors %}<div class="text-danger small">{{ form.username.errors|join:', ' }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email <span class="text-danger">*</span></label>
+                            <input type="email" name="email" class="form-control" value="{{ form.email.value|default:'' }}" required>
+                            {% if form.email.errors %}<div class="text-danger small">{{ form.email.errors|join:', ' }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">{{ form.password.label }} {% if is_create %}<span class="text-danger">*</span>{% endif %}</label>
+                            <input type="password" name="password" class="form-control" {% if is_create %}required{% endif %} placeholder="{{ form.password.field.widget.attrs.placeholder|default:'' }}">
+                            <small class="text-muted-soft">{{ form.password.help_text }}</small>
+                            {% if form.password.errors %}<div class="text-danger small">{{ form.password.errors|join:', ' }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Employee ID</label>
+                            <input type="text" name="employee_id" class="form-control" value="{{ form.employee_id.value|default:'' }}" placeholder="Auto-generated if blank">
+                            {% if form.employee_id.errors %}<div class="text-danger small">{{ form.employee_id.errors|join:', ' }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Role <span class="text-danger">*</span></label>
+                            <select name="role" class="form-select" required>
+                                <option value="">— Select Role —</option>
+                                {% for r in form.role.field.queryset %}
+                                    <option value="{{ r.pk }}" {% if form.role.value|slugify == r.pk|slugify %}selected{% endif %}>{{ r.name }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if form.role.errors %}<div class="text-danger small">{{ form.role.errors|join:', ' }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-select">
+                                {% for s, label in form.status.field.choices %}
+                                <option value="{{ s }}" {% if form.status.value == s %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Contact Number</label>
+                            <input type="text" name="contact_number" class="form-control" value="{{ form.contact_number.value|default:'' }}">
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4 gap-2">
+                        <a href="{% url 'accounts:user_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save me-2"></i>{% if is_create %}Create User{% else %}Save Changes{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-info-circle me-2"></i>Role Permissions</div>
+            <div class="card-body">
+                <p class="small text-muted-soft">Choose the role carefully — it determines what the user can access.</p>
+                <dl class="small mb-0">
+                    <dt class="text-primary">Administrator</dt>
+                    <dd class="text-muted-soft">Full system access — users, students, counseling, referrals, inventory, reports, settings, database.</dd>
+                    <dt class="text-primary">Guidance Staff</dt>
+                    <dd class="text-muted-soft">Students, counseling, referrals, inventory. No user management or database access.</dd>
+                    <dt class="text-primary">Counselor</dt>
+                    <dd class="text-muted-soft">Student profiles, counseling records, referrals. No user or inventory management.</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

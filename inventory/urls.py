@@ -1,0 +1,20 @@
+"""Inventory app URL configuration."""
+from django.urls import path
+
+from . import views
+
+app_name = 'inventory'
+
+urlpatterns = [
+    # Items
+    path('', views.inventory_list, name='list'),
+    path('create/', views.inventory_create, name='create'),
+    path('stock-monitoring/', views.stock_monitoring, name='stock_monitoring'),
+    path('<int:pk>/', views.inventory_detail, name='detail'),
+    path('<int:pk>/edit/', views.inventory_edit, name='edit'),
+    path('<int:pk>/delete/', views.inventory_delete, name='delete'),
+    # Borrowed items
+    path('borrowed/', views.borrowed_list, name='borrowed_list'),
+    path('borrowed/create/', views.borrowed_create, name='borrowed_create'),
+    path('borrowed/<int:pk>/return/', views.borrowed_return, name='borrowed_return'),
+]

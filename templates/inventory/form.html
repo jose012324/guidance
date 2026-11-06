@@ -1,0 +1,78 @@
+{% extends "partials/app_layout.html" %}
+
+{% block title %}{% if is_create %}Add Inventory Item{% else %}Edit Item{% endif %} — {{ school_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>{% if is_create %}Add Inventory Item{% else %}Edit Item{% endif %}</h1>
+        <p class="page-subtitle">Item code auto-generates if left blank.</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'inventory:list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Back</a>
+    </div>
+</div>
+
+<form method="post" data-disable-on-submit>
+    {% csrf_token %}
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <div class="card mb-3">
+                <div class="card-header"><i class="bi bi-info-circle me-2"></i>Item Information</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Item Code</label>
+                            <input type="text" name="item_code" class="form-control" value="{{ form.item_code.value|default:'' }}" placeholder="Auto-generated if blank">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Name <span class="text-danger">*</span></label>
+                            <input type="text" name="name" class="form-control" value="{{ form.name.value|default:'' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Category</label>
+                            {{ form.category }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Unit</label>
+                            {{ form.unit }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Quantity</label>
+                            <input type="number" name="quantity" class="form-control" min="0" value="{{ form.quantity.value|default:'0' }}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Reorder Level</label>
+                            <input type="number" name="reorder_level" class="form-control" min="0" value="{{ form.reorder_level.value|default:'5' }}" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control" rows="2">{{ form.description.value|default:'' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-info-circle me-2"></i>Stock Status Guide</div>
+                <div class="card-body">
+                    <dl class="small mb-0">
+                        <dt><span class="badge badge-available">Available</span></dt>
+                        <dd class="text-muted-soft">Quantity above reorder level.</dd>
+                        <dt><span class="badge badge-low_stock">Low Stock</span></dt>
+                        <dd class="text-muted-soft">Quantity at or below reorder level.</dd>
+                        <dt><span class="badge badge-out_of_stock">Out of Stock</span></dt>
+                        <dd class="text-muted-soft">Quantity is zero.</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-3">
+        <a href="{% url 'inventory:list' %}" class="btn btn-outline-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-save me-2"></i>{% if is_create %}Add Item{% else %}Save Changes{% endif %}</button>
+    </div>
+</form>
+{% endblock %}

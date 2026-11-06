@@ -1,0 +1,72 @@
+{% extends "partials/app_layout.html" %}
+
+{% block title %}Borrowed Items — {{ school_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Borrowed Items</h1>
+        <p class="page-subtitle">Track items borrowed from inventory and their return status.</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'inventory:borrowed_create' %}" class="btn btn-primary"><i class="bi bi-plus-circle me-2"></i>Record Borrowing</a>
+    </div>
+</div>
+
+<form method="get" class="filter-bar">
+    <div class="flex-grow-1" style="min-width: 220px;">
+        <input type="text" name="search" value="{{ filter_form.search.value|default:'' }}" class="form-control" placeholder="Search borrower or item...">
+    </div>
+    <div style="min-width: 160px;">{{ filter_form.status }}</div>
+    <button type="submit" class="btn btn-soft"><i class="bi bi-funnel me-1"></i>Filter</button>
+    <a href="{% url 'inventory:borrowed_list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-clockwise"></i></a>
+</form>
+
+<div class="table-card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr><th>Borrower</th><th>Department</th><th>Item</th><th>Qty</th><th>Borrowed</th><th>Return Due</th><th>Returned</th><th>Status</th><th class="text-end">Action</th></tr>
+            </thead>
+            <tbody>
+                {% for b in borrowed %}
+                <tr>
+                    <td>{{ b.borrower_name }}</td>
+                    <td>{{ b.department|default:"—" }}</td>
+                    <td><a href="{% url 'inventory:detail' b.item.pk %}">{{ b.item.name }}</a></td>
+                    <td>{{ b.quantity }}</td>
+                    <td>{{ b.borrow_date|date:"M d, Y" }}</td>
+                    <td>{{ b.expected_return_date|date:"M d, Y"|default:"—" }}</td>
+                    <td>{{ b.actual_return_date|date:"M d, Y"|default:"—" }}</td>
+                    <td><span class="badge badge-{{ b.status }}">{{ b.get_status_display }}</span></td>
+                    <td class="text-end">
+                        {% if b.status != 'returned' %}
+                        <a href="{% url 'inventory:borrowed_return' b.pk %}" class="btn btn-sm btn-success"><i class="bi bi-arrow-return-left me-1"></i>Return</a>
+                        {% else %}
+                        <span class="text-muted-soft small">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="9"><div class="empty-state"><i class="bi bi-arrow-left-right"></i><h4>No borrowed items</h4><p>Record a new borrowing to get started.</p></div></td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if borrowed.has_other_pages %}
+    <div class="d-flex justify-content-between align-items-center p-3 border-top">
+        <div class="text-muted-soft small">Showing {{ borrowed.start_index }}–{{ borrowed.end_index }} of {{ borrowed.paginator.count }} records</div>
+        <nav>
+            <ul class="pagination pagination-sm mb-0">
+                {% if borrowed.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ borrowed.previous_page_number }}&{{ request.GET.urlencode }}"><i class="bi bi-chevron-left"></i></a></li>{% endif %}
+                {% for n in borrowed.paginator.page_range %}
+                    {% if borrowed.number == n %}<li class="page-item active"><span class="page-link">{{ n }}</span></li>
+                    {% elif n > borrowed.number|add:'-3' and n < borrowed.number|add:'3' %}<li class="page-item"><a class="page-link" href="?page={{ n }}&{{ request.GET.urlencode }}">{{ n }}</a></li>{% endif %}
+                {% endfor %}
+                {% if borrowed.has_next %}<li class="page-item"><a class="page-link" href="?page={{ borrowed.next_page_number }}&{{ request.GET.urlencode }}"><i class="bi bi-chevron-right"></i></a></li>{% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

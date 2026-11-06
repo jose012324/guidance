@@ -1,0 +1,282 @@
+{% comment %}
+Reusable student search-and-select widget. Replaces a <select> with a
+debounced typeahead for forms (counseling, referrals, etc.) so that
+schools with 1k+ students don't have to scroll a giant dropdown.
+
+Usage:
+    {% include "partials/student_search.html" with field=form.student label="Student" required=True %}
+{% endcomment %}
+<div class="mb-3 student-search-widget" data-lookup-url="{% url 'api_student_lookup' %}">
+    <label class="form-label">{{ label }}{% if required %} <span class="text-danger">*</span>{% endif %}</label>
+    {% comment %}
+    Hidden field — keeps the existing ModelForm `student` contract so
+    view/URL/test code doesn't need to change. Value is the student pk.
+    {% endcomment %}
+    <input type="hidden" name="{{ field.name }}" id="{{ field.auto_id }}_hidden" value="{{ field.value|default:'' }}">
+    {# Visible search box — what the user actually types in. #}
+    <div class="position-relative">
+        <input
+            type="text"
+            class="form-control student-search-input"
+            id="{{ field.auto_id }}_search"
+            placeholder="Type student name or number to search…"
+            autocomplete="off"
+            {% if required %}required aria-required="true"{% endif %}
+            aria-autocomplete="list"
+            aria-controls="{{ field.auto_id }}_results"
+        >
+        <div
+            class="student-search-results list-group shadow-sm"
+            id="{{ field.auto_id }}_results"
+            role="listbox"
+            hidden
+        ></div>
+    </div>
+    <small class="text-muted-soft student-search-status" id="{{ field.auto_id }}_status" aria-live="polite"></small>
+    {% if field.errors %}
+        <div class="text-danger small">{{ field.errors|join:', ' }}</div>
+    {% endif %}
+</div>
+
+<style>
+    /* Position the results dropdown under the search box and keep it
+       scrollable once it grows past ~6 rows so 10 matches don't push
+       the rest of the form down. */
+    .student-search-results {
+        position: absolute;
+        z-index: 1050;
+        top: 100%;
+        left: 0;
+        right: 0;
+        margin-top: 4px;
+        max-height: 260px;
+        overflow-y: auto;
+        background: var(--color-bg, #fff);
+        border: 1px solid var(--color-border-soft, #e5e7eb);
+        border-radius: .375rem;
+    }
+    .student-search-results .list-group-item {
+        cursor: pointer;
+        border-left: 0;
+        border-right: 0;
+        border-radius: 0;
+        padding: .5rem .75rem;
+        text-align: left;
+        background: transparent;
+    }
+    .student-search-results .list-group-item:first-child { border-top: 0; }
+    .student-search-results .list-group-item:last-child  { border-bottom: 0; }
+    .student-search-results .list-group-item:hover,
+    .student-search-results .list-group-item.active {
+        background: var(--color-accent-soft, rgba(26, 58, 107, .08));
+    }
+    .student-search-results .empty {
+        padding: .75rem;
+        color: var(--color-muted-soft, #6b7280);
+        font-size: .875rem;
+    }
+</style>
+
+<script>
+(function () {
+    'use strict';
+
+    // Initialise every student-search widget on the page. The partial is
+    // included multiple times per page (counseling form + referral form
+    // can sit on the same DOM in tests/dev), so we scope by class rather
+    // than a global variable.
+    document.querySelectorAll('.student-search-widget').forEach(function (widget) {
+        if (widget.dataset.bound === '1') return;
+        widget.dataset.bound = '1';
+
+        var lookupUrl    = widget.dataset.lookupUrl;
+        var hidden       = widget.querySelector('input[type="hidden"]');
+        var input        = widget.querySelector('.student-search-input');
+        var results      = widget.querySelector('.student-search-results');
+        var status       = widget.querySelector('.student-search-status');
+        var debounceTimer = null;
+        var inflight      = null;   // AbortController for the active request
+        var activeIndex   = -1;     // keyboard-navigated result
+        var lockedLabel   = '';     // label of the currently-selected student
+
+        function escapeHtml(s) {
+            return String(s == null ? '' : s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function formatLabel(s) {
+            return s.full_name + ' (' + s.student_number + ')';
+        }
+
+        function selectStudent(s) {
+            hidden.value = s.id;
+            input.value = formatLabel(s);
+            lockedLabel = input.value;
+            input.dataset.locked = '1';
+            results.hidden = true;
+            results.innerHTML = '';
+            status.textContent = 'Selected: ' + formatLabel(s);
+            input.setCustomValidity('');
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        function clearSelection() {
+            hidden.value = '';
+            input.dataset.locked = '';
+            lockedLabel = '';
+            status.textContent = '';
+        }
+
+        function renderResults(items) {
+            results.innerHTML = '';
+            activeIndex = -1;
+            if (!items.length) {
+                results.innerHTML = '<div class="empty">No students found.</div>';
+                results.hidden = false;
+                return;
+            }
+            items.forEach(function (s) {
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'list-group-item list-group-item-action';
+                btn.setAttribute('role', 'option');
+                btn.dataset.id = s.id;
+                btn.innerHTML =
+                    '<div class="fw-medium">' + escapeHtml(s.full_name) + '</div>' +
+                    '<small class="text-muted-soft">' + escapeHtml(s.student_number) +
+                    (s.grade_level ? ' · ' + escapeHtml(s.grade_level) : '') +
+                    (s.section ? ' · ' + escapeHtml(s.section) : '') + '</small>';
+                // mousedown (not click) beats the input's blur and stops
+                // the dropdown from being hidden before our handler runs.
+                btn.addEventListener('mousedown', function (e) {
+                    e.preventDefault();
+                    selectStudent(s);
+                });
+                results.appendChild(btn);
+            });
+            results.hidden = false;
+        }
+
+        function runSearch(q) {
+            // Cancel any in-flight request so only the latest query's
+            // response gets to render.
+            if (inflight) inflight.abort();
+            inflight = new AbortController();
+            status.textContent = 'Searching…';
+            fetch(lookupUrl + '?q=' + encodeURIComponent(q), {
+                credentials: 'include',
+                headers: { 'Accept': 'application/json' },
+                signal: inflight.signal,
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (!data || !data.success) {
+                    status.textContent = 'Search failed.';
+                    results.hidden = true;
+                    return;
+                }
+                var items = (data.data && data.data.items) || [];
+                renderResults(items);
+                status.textContent = items.length
+                    ? 'Showing ' + items.length + ' result(s).'
+                    : 'No students found.';
+            })
+            .catch(function (err) {
+                if (err.name === 'AbortError') return; // superseded
+                status.textContent = 'Search failed.';
+                results.hidden = true;
+            });
+        }
+
+        // Pre-fill the visible search box with the currently-selected
+        // student so editing an existing session/referral shows the
+        // student's name instead of an empty box. Resolves the pk from
+        // the hidden input via a /lookup/?q= call.
+        function prefillFromHidden() {
+            var pk = hidden.value;
+            if (!pk) return;
+            fetch(lookupUrl + '?q=', {
+                credentials: 'include',
+                headers: { 'Accept': 'application/json' },
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (!data || !data.success) return;
+                var match = (data.data && data.data.items || []).find(function (s) {
+                    return String(s.id) === String(pk);
+                });
+                if (match) {
+                    input.value = formatLabel(match);
+                    lockedLabel = input.value;
+                    input.dataset.locked = '1';
+                }
+            })
+            .catch(function () { /* offline / 404 — leave box empty */ });
+        }
+
+        // Debounce typing — wait 250ms after the last keystroke before
+        // hitting the server.
+        input.addEventListener('input', function () {
+            var q = input.value.trim();
+            if (input.dataset.locked === '1' && q !== lockedLabel) {
+                // User is editing the field after a selection — drop the
+                // lock so they can pick a different student.
+                input.dataset.locked = '';
+                clearSelection();
+            }
+            if (debounceTimer) clearTimeout(debounceTimer);
+            if (!q) {
+                results.hidden = true;
+                results.innerHTML = '';
+                status.textContent = '';
+                return;
+            }
+            debounceTimer = setTimeout(function () { runSearch(q); }, 250);
+        });
+
+        // Keyboard navigation: ArrowDown/Up + Enter.
+        input.addEventListener('keydown', function (e) {
+            var items = results.querySelectorAll('.list-group-item');
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (results.hidden) return;
+                activeIndex = Math.min(items.length - 1, activeIndex + 1);
+                items.forEach(function (it, i) { it.classList.toggle('active', i === activeIndex); });
+                if (items[activeIndex]) items[activeIndex].scrollIntoView({ block: 'nearest' });
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (results.hidden) return;
+                activeIndex = Math.max(0, activeIndex - 1);
+                items.forEach(function (it, i) { it.classList.toggle('active', i === activeIndex); });
+                if (items[activeIndex]) items[activeIndex].scrollIntoView({ block: 'nearest' });
+            } else if (e.key === 'Enter') {
+                if (!results.hidden && activeIndex >= 0 && items[activeIndex]) {
+                    e.preventDefault();
+                    var id = items[activeIndex].dataset.id;
+                    var s = {
+                        id: id,
+                        full_name: items[activeIndex].querySelector('.fw-medium').textContent,
+                        student_number: (items[activeIndex].querySelector('small').textContent.split(' ·')[0] || '').trim(),
+                    };
+                    selectStudent(s);
+                }
+            } else if (e.key === 'Escape') {
+                results.hidden = true;
+            }
+        });
+
+        // Close on outside click.
+        document.addEventListener('click', function (e) {
+            if (!widget.contains(e.target)) {
+                results.hidden = true;
+            }
+        });
+
+        prefillFromHidden();
+    });
+})();
+</script>

@@ -1,0 +1,105 @@
+{% extends "partials/app_layout.html" %}
+
+{% block title %}{% if is_create %}Register Student{% else %}Edit Student{% endif %} — {{ school_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>{% if is_create %}Register New Student{% else %}Edit Student{% endif %}</h1>
+        <p class="page-subtitle">
+            {% if is_create %}Add a new student to the guidance office records.{% else %}Update {{ student.full_name }}'s information.{% endif %}
+        </p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'students:list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Back</a>
+    </div>
+</div>
+
+<form method="post" data-disable-on-submit>
+    {% csrf_token %}
+
+    <div class="row g-3">
+        <!-- Personal Information -->
+        <div class="col-lg-7">
+            <div class="card mb-3">
+                <div class="card-header"><i class="bi bi-person-vcard me-2"></i>Personal Information</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Student Number <span class="text-danger">*</span></label>
+                            <input type="text" name="student_number" class="form-control" value="{{ form.student_number.value|default:'' }}" required>
+                            {% if form.student_number.errors %}<div class="text-danger small">{{ form.student_number.errors|join:', ' }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Birthdate</label>
+                            <input type="text" name="birthdate" class="form-control datepicker" value="{{ form.birthdate.value|date:'Y-m-d'|default:'' }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">First Name <span class="text-danger">*</span></label>
+                            <input type="text" name="first_name" class="form-control" value="{{ form.first_name.value|default:'' }}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Middle Name</label>
+                            <input type="text" name="middle_name" class="form-control" value="{{ form.middle_name.value|default:'' }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                            <input type="text" name="last_name" class="form-control" value="{{ form.last_name.value|default:'' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Gender</label>
+                            {{ form.gender }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Status</label>
+                            {{ form.status }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact + Academic -->
+        <div class="col-lg-5">
+            <div class="card mb-3">
+                <div class="card-header"><i class="bi bi-telephone me-2"></i>Contact Information</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        <textarea name="address" class="form-control" rows="2">{{ form.address.value|default:'' }}</textarea>
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label">Contact Number</label>
+                        <input type="text" name="contact_number" class="form-control" value="{{ form.contact_number.value|default:'' }}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><i class="bi bi-school me-2"></i>Academic Information</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                            <label class="form-label">Year Level</label>
+                            {{ form.grade_level }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Course & Section</label>
+                            <input type="text" name="section" class="form-control" value="{{ form.section.value|default:'' }}" placeholder="e.g. BSIT-1A">
+                        </div>
+                    <div class="mb-0">
+                        <label class="form-label">School Year</label>
+                        <input type="text" name="school_year" class="form-control" value="{{ form.school_year.value|default:'' }}" placeholder="e.g. 2025-2026">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-4">
+        <a href="{% url 'students:list' %}" class="btn btn-outline-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-save me-2"></i>{% if is_create %}Register Student{% else %}Save Changes{% endif %}
+        </button>
+    </div>
+</form>
+{% endblock %}

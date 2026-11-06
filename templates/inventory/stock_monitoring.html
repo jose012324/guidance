@@ -1,0 +1,90 @@
+{% extends "partials/app_layout.html" %}
+
+{% block title %}Stock Monitoring Center — {{ school_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Stock Monitoring Center</h1>
+        <p class="page-subtitle">Real-time inventory health overview with low-stock and out-of-stock alerts.</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'inventory:list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Back to Inventory</a>
+    </div>
+</div>
+
+<!-- KPIs -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-accent"><i class="bi bi-box-seam-fill"></i></div>
+            <div class="stat-info"><div class="stat-value">{{ kpis.total }}</div><div class="stat-label">Total Items</div></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-success-soft"><i class="bi bi-check-circle-fill"></i></div>
+            <div class="stat-info"><div class="stat-value">{{ kpis.available }}</div><div class="stat-label">Available</div></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-warning-soft"><i class="bi bi-exclamation-triangle-fill"></i></div>
+            <div class="stat-info"><div class="stat-value">{{ kpis.low_stock }}</div><div class="stat-label">Low Stock</div></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-danger-soft"><i class="bi bi-x-circle-fill"></i></div>
+            <div class="stat-info"><div class="stat-value">{{ kpis.out_of_stock }}</div><div class="stat-label">Out of Stock</div></div>
+        </div>
+    </div>
+</div>
+
+<!-- Low stock alerts -->
+<div class="card mb-3">
+    <div class="card-header"><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>Low Stock Items</div>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead><tr><th>Item Code</th><th>Name</th><th>Category</th><th>Quantity</th><th>Reorder Level</th><th class="text-end">Action</th></tr></thead>
+            <tbody>
+                {% for i in low_stock %}
+                <tr>
+                    <td>{{ i.item_code }}</td>
+                    <td>{{ i.name }}</td>
+                    <td>{{ i.get_category_display }}</td>
+                    <td><span class="badge bg-warning text-dark">{{ i.quantity }} {{ i.unit }}</span></td>
+                    <td>{{ i.reorder_level }}</td>
+                    <td class="text-end"><a href="{% url 'inventory:detail' i.pk %}" class="btn btn-sm btn-soft"><i class="bi bi-arrow-up-circle me-1"></i>Restock</a></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6"><div class="empty-state"><i class="bi bi-check-circle"></i><p>No low stock items. All good!</p></div></td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Out of stock -->
+<div class="card">
+    <div class="card-header"><i class="bi bi-x-circle-fill text-danger me-2"></i>Out of Stock Items</div>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead><tr><th>Item Code</th><th>Name</th><th>Category</th><th>Reorder Level</th><th class="text-end">Action</th></tr></thead>
+            <tbody>
+                {% for i in out_of_stock %}
+                <tr>
+                    <td>{{ i.item_code }}</td>
+                    <td>{{ i.name }}</td>
+                    <td>{{ i.get_category_display }}</td>
+                    <td>{{ i.reorder_level }}</td>
+                    <td class="text-end"><a href="{% url 'inventory:detail' i.pk %}" class="btn btn-sm btn-soft"><i class="bi bi-arrow-up-circle me-1"></i>Restock</a></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5"><div class="empty-state"><i class="bi bi-check-circle"></i><p>No out-of-stock items. All good!</p></div></td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

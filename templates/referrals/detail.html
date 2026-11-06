@@ -1,0 +1,129 @@
+{% extends "partials/app_layout.html" %}
+
+{% block title %}Referral #{{ referral.pk }} — {{ referral.student.full_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Referral #{{ referral.pk }}</h1>
+        <p class="page-subtitle">
+            {{ referral.student.full_name }} • {{ referral.get_referral_type_display }} • Referred {{ referral.referred_at|date:"M d, Y" }}
+        </p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'referrals:list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Back</a>
+        <a href="{% url 'referrals:edit' referral.pk %}" class="btn btn-primary"><i class="bi bi-pencil me-2"></i>Edit</a>
+        {% if referral.status != 'completed' %}
+        <form method="post" action="{% url 'referrals:close' referral.pk %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success"><i class="bi bi-check-circle me-2"></i>Mark Completed</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-8">
+        <!-- Student info -->
+        <div class="card mb-3">
+            <div class="card-header"><i class="bi bi-person me-2"></i>Student Information</div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-3 text-muted-soft">Student</dt>
+                    <dd class="col-sm-9"><a href="{% url 'students:detail' referral.student.pk %}">{{ referral.student.full_name }}</a></dd>
+                    <dt class="col-sm-3 text-muted-soft">Student #</dt>
+                    <dd class="col-sm-9">{{ referral.student.student_number }}</dd>
+                    <dt class="col-sm-3 text-muted-soft">Year / Course & Section</dt>
+                    <dd class="col-sm-9">{{ referral.student.grade_level|default:"—" }} {{ referral.student.section|default:"" }}</dd>
+                </dl>
+            </div>
+        </div>
+
+        <!-- Referral info -->
+        <div class="card mb-3">
+            <div class="card-header"><i class="bi bi-info-circle me-2"></i>Referral Information</div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-3 text-muted-soft">Referral Type / Destination</dt>
+                    <dd class="col-sm-9">{{ referral.get_referral_type_display }}</dd>
+                    <dt class="col-sm-3 text-muted-soft">Priority</dt>
+                    <dd class="col-sm-9">
+                        {% if referral.priority == 'urgent' %}<span class="badge bg-danger">{{ referral.get_priority_display }}</span>
+                        {% elif referral.priority == 'high' %}<span class="badge bg-warning text-dark">{{ referral.get_priority_display }}</span>
+                        {% else %}<span class="badge bg-secondary">{{ referral.get_priority_display }}</span>{% endif %}
+                    </dd>
+                    <dt class="col-sm-3 text-muted-soft">Status</dt>
+                    <dd class="col-sm-9"><span class="badge badge-{{ referral.status }}">{{ referral.get_status_display }}</span></dd>
+                    <dt class="col-sm-3 text-muted-soft">Referred By</dt>
+                    <dd class="col-sm-9">{{ referral.referred_by.full_name }}</dd>
+                    <dt class="col-sm-3 text-muted-soft">Assigned To</dt>
+                    <dd class="col-sm-9">{{ referral.assigned_counselor.full_name|default:"Unassigned" }}</dd>
+                    <dt class="col-sm-3 text-muted-soft">Referred At</dt>
+                    <dd class="col-sm-9">{{ referral.referred_at|date:"M d, Y H:i" }}</dd>
+                    {% if referral.completed_at %}
+                    <dt class="col-sm-3 text-muted-soft">Completed At</dt>
+                    <dd class="col-sm-9">{{ referral.completed_at|date:"M d, Y H:i" }}</dd>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header"><i class="bi bi-card-text me-2"></i>Reason</div>
+            <div class="card-body"><p class="mb-2">{{ referral.reason|linebreaksbr }}</p></div>
+        </div>
+
+        {% if referral.description %}
+        <div class="card mb-3">
+            <div class="card-header"><i class="bi bi-journal-text me-2"></i>Description</div>
+            <div class="card-body"><p class="mb-0">{{ referral.description|linebreaksbr }}</p></div>
+        </div>
+        {% endif %}
+
+        <!-- Timeline -->
+        <div class="card">
+            <div class="card-header"><i class="bi bi-clock-history me-2"></i>Referral Timeline</div>
+            <div class="card-body">
+                <div class="timeline">
+                    {% for u in updates %}
+                    <div class="timeline-item">
+                        <div class="d-flex justify-content-between">
+                            <strong>Status → <span class="badge bg-secondary">{{ u.get_new_status_display }}</span></strong>
+                            <small class="text-muted-soft">{{ u.created_at|date:"M d, Y H:i" }}</small>
+                        </div>
+                        <p class="mb-0">{{ u.note|linebreaksbr }}</p>
+                        <small class="text-muted-soft">By {{ u.author.full_name|default:"System" }}</small>
+                    </div>
+                    {% empty %}
+                    <div class="empty-state"><i class="bi bi-clock-history"></i><p>No updates recorded yet.</p></div>
+                    {% endfor %}
+                </div>
+
+                <hr>
+                <form method="post" action="{% url 'referrals:detail' referral.pk %}">
+                    {% csrf_token %}
+                    <div class="mb-2">
+                        <label class="form-label">Add Update</label>
+                        {{ update_form.new_status }}
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Note</label>
+                        <textarea name="note" class="form-control" rows="2" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-plus-circle me-1"></i>Add Update</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-three-dots me-2"></i>Actions</div>
+            <div class="card-body">
+                <a href="{% url 'referrals:edit' referral.pk %}" class="btn btn-outline-secondary btn-sm w-100 mb-2"><i class="bi bi-pencil me-1"></i>Edit Referral</a>
+                <a href="{% url 'referrals:delete' referral.pk %}" class="btn btn-outline-danger btn-sm w-100"><i class="bi bi-trash me-1"></i>Delete Referral</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

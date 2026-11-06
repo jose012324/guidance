@@ -1,0 +1,71 @@
+{% extends "partials/app_layout.html" %}
+
+{% block title %}Inventory Management — {{ school_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Inventory Management</h1>
+        <p class="page-subtitle">Manage office supplies, furniture, equipment, and forms.</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'inventory:stock_monitoring' %}" class="btn btn-outline-secondary"><i class="bi bi-graph-up me-2"></i>Stock Monitoring</a>
+        <a href="{% url 'inventory:borrowed_list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left-right me-2"></i>Borrowed Items</a>
+        <a href="{% url 'inventory:create' %}" class="btn btn-primary"><i class="bi bi-plus-circle me-2"></i>Add Item</a>
+    </div>
+</div>
+
+<form method="get" class="filter-bar">
+    <div class="flex-grow-1" style="min-width: 220px;">
+        <input type="text" name="search" value="{{ filter_form.search.value|default:'' }}" class="form-control" placeholder="Search name or item code...">
+    </div>
+    <div style="min-width: 180px;">{{ filter_form.category }}</div>
+    <div style="min-width: 160px;">{{ filter_form.stock_status }}</div>
+    <button type="submit" class="btn btn-soft"><i class="bi bi-funnel me-1"></i>Filter</button>
+    <a href="{% url 'inventory:list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-clockwise"></i></a>
+</form>
+
+<div class="table-card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr><th>Item Code</th><th>Name</th><th>Category</th><th>Quantity</th><th>Unit</th><th>Reorder Level</th><th>Stock Status</th><th class="text-end">Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for i in items %}
+                <tr>
+                    <td><span class="fw-medium">{{ i.item_code }}</span></td>
+                    <td><a href="{% url 'inventory:detail' i.pk %}">{{ i.name }}</a></td>
+                    <td><span class="badge bg-secondary">{{ i.get_category_display }}</span></td>
+                    <td>{{ i.quantity }}</td>
+                    <td>{{ i.unit }}</td>
+                    <td>{{ i.reorder_level }}</td>
+                    <td><span class="badge badge-{{ i.stock_status }}">{{ i.stock_status_display }}</span></td>
+                    <td class="text-end">
+                        <a href="{% url 'inventory:detail' i.pk %}" class="btn btn-sm btn-soft"><i class="bi bi-eye"></i></a>
+                        <a href="{% url 'inventory:edit' i.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8"><div class="empty-state"><i class="bi bi-box-seam"></i><h4>No items found</h4><p>Try adjusting filters or add a new item.</p></div></td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if items.has_other_pages %}
+    <div class="d-flex justify-content-between align-items-center p-3 border-top">
+        <div class="text-muted-soft small">Showing {{ items.start_index }}–{{ items.end_index }} of {{ items.paginator.count }} items</div>
+        <nav>
+            <ul class="pagination pagination-sm mb-0">
+                {% if items.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ items.previous_page_number }}&{{ request.GET.urlencode }}"><i class="bi bi-chevron-left"></i></a></li>{% endif %}
+                {% for n in items.paginator.page_range %}
+                    {% if items.number == n %}<li class="page-item active"><span class="page-link">{{ n }}</span></li>
+                    {% elif n > items.number|add:'-3' and n < items.number|add:'3' %}<li class="page-item"><a class="page-link" href="?page={{ n }}&{{ request.GET.urlencode }}">{{ n }}</a></li>{% endif %}
+                {% endfor %}
+                {% if items.has_next %}<li class="page-item"><a class="page-link" href="?page={{ items.next_page_number }}&{{ request.GET.urlencode }}"><i class="bi bi-chevron-right"></i></a></li>{% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
